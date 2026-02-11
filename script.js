@@ -11,3 +11,11 @@ navigator.mediaDevices.getUserMedia({ video: true })
     videoElement.play();
   });
 
+function draw() {
+  canvasCtx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+  requestAnimationFrame(draw);
+}
+
+videoElement.addEventListener('loadeddata', () => {
+  draw();
+});
