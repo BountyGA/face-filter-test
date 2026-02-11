@@ -1,3 +1,12 @@
+let currentFilter = "glasses";
+
+const mustache = new Image();
+mustache.src = "mustache.png";
+
+const flatcap = new Image();
+flatcap.src = "flatcap.png";
+
+
 const videoElement = document.getElementById('video');
 const canvasElement = document.getElementById('canvas');
 const canvasCtx = canvasElement.getContext('2d');
@@ -50,13 +59,53 @@ faceMesh.onResults(results => {
       const centerX = (x1 + x2) / 2;
       const centerY = (y1 + y2) / 2;
 
-      canvasCtx.drawImage(
-        glasses,
-        centerX - glassesWidth / 2,
-        centerY - glassesHeight / 2,
-        glassesWidth,
-        glassesHeight
-      );
+     if (currentFilter === "glasses") {
+  canvasCtx.drawImage(
+    glasses,
+    centerX - glassesWidth / 2,
+    centerY - glassesHeight / 2,
+    glassesWidth,
+    glassesHeight
+  );
+}
+
+if (currentFilter === "mustache") {
+  const nose = landmarks[1];
+  const mouth = landmarks[13];
+
+  const mx = nose.x * canvasElement.width;
+  const my = nose.y * canvasElement.height;
+
+  const mWidth = eyeDistance * 1.5;
+  const mHeight = mWidth * 0.4;
+
+  canvasCtx.drawImage(
+    mustache,
+    mx - mWidth / 2,
+    my,
+    mWidth,
+    mHeight
+  );
+}
+      if (currentFilter === "flatcap") {
+
+  const forehead = landmarks[10];
+
+  const fx = forehead.x * canvasElement.width;
+  const fy = forehead.y * canvasElement.height;
+
+  const capWidth = eyeDistance * 2.5;
+  const capHeight = capWidth * 0.8;
+
+  canvasCtx.drawImage(
+    flatcap,
+    fx - capWidth / 2,
+    fy - capHeight,
+    capWidth,
+    capHeight
+  );
+}
+
     }
   }
 });
@@ -75,4 +124,7 @@ function takePhoto() {
   link.download = 'snapshot.png';
   link.href = canvasElement.toDataURL();
   link.click();
+}
+function setFilter(filter) {
+  currentFilter = filter;
 }
