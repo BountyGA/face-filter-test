@@ -1,22 +1,495 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Face Filter Test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FILTR · group 2 | mobile robotics</title>
+  <!-- MediaPipe libraries (same as original) -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <!-- Google Font for that tech vibe -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0b0d10;
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #eef5ff;
+    }
+
+    /* main card – futuristic glass panel */
+    .dashboard {
+      max-width: 1400px;
+      width: 100%;
+      background: rgba(18, 22, 30, 0.8);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(66, 212, 243, 0.25);
+      border-radius: 2.5rem;
+      padding: 2rem 2rem 2rem 2rem;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 255, 255, 0.1) inset;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    /* LEFT SIDE – canvas area + action buttons */
+    .studio {
+      flex: 3;
+      min-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.6rem;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      border-radius: 2rem;
+      overflow: hidden;
+      box-shadow: 0 20px 35px -8px #00000080, 0 0 0 2px #2cd4ff33;
+      aspect-ratio: 4/3;
+      background: #1a1f2b;
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);  /* mirror for natural selfie feel */
+    }
+
+    /* control row — super cool neobrutalism meets cyber */
+    .button-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn {
+      background: #1e2533;
+      border: none;
+      border-radius: 3rem;
+      padding: 0.9rem 2rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      color: #d6eaff;
+      cursor: pointer;
+      box-shadow: 0 10px 0 #0b0f17, 0 4px 20px #00ffff33;
+      transition: all 0.08s ease-out;
+      border: 1px solid #2dc9ff30;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .btn:active {
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 #0b0f17, 0 6px 18px #00e0ff80;
+    }
+
+    .btn-primary {
+      background: #005c8a;
+      border-color: #6ef0ff;
+      color: white;
+      text-shadow: 0 2px 3px black;
+    }
+
+    .btn-filter {
+      background: #132f42;
+      border-color: #40d9ff;
+    }
+
+    .btn-filter.active {
+      background: #0d4b6e;
+      box-shadow: 0 10px 0 #06212e, 0 0 20px #00ddff;
+      border-color: #9af0ff;
+    }
+
+    /* VERTICAL MARQUEE — RIGHT SIDE (exactly as requested) */
+    .marquee-vertical {
+      flex: 1.2;
+      min-width: 300px;
+      background: #0f1620e0;
+      backdrop-filter: blur(10px);
+      border-radius: 2rem;
+      padding: 1.8rem 1rem;
+      border: 1px solid #29d0ff40;
+      box-shadow: inset 0 0 30px #00000080, 0 15px 25px #000000;
+      display: flex;
+      flex-direction: column;
+      max-height: 600px;
+      overflow: hidden;
+    }
+
+    .marquee-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px dashed #2fc7ff60;
+      padding-bottom: 1rem;
+    }
+
+    .group-badge {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(145deg, #98f0ff, #50b8ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 2px;
+    }
+
+    .course-title {
+      font-size: 1rem;
+      background: #1d334a;
+      padding: 0.3rem 1rem;
+      border-radius: 50px;
+      display: inline-block;
+      margin-top: 10px;
+      font-weight: 400;
+      border: 1px solid cyan;
+    }
+
+    .prof {
+      color: #b2f0ff;
+      font-weight: 300;
+      margin-top: 5px;
+      font-size: 0.95rem;
+    }
+
+    /* actual scrolling names container */
+    .names-scroll {
+      flex: 1;
+      overflow-y: hidden;
+      mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+      padding: 0.3rem;
+    }
+
+    .scroll-content {
+      animation: scrollUp 22s linear infinite;
+      display: flex;
+      flex-direction: column;
+      gap: 1.3rem;
+    }
+
+    .name-entry {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: #1d2a38c0;
+      padding: 0.8rem 1.2rem;
+      border-radius: 50px;
+      border-left: 6px solid #0ef;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 8px #00000060;
+      transition: 0.2s;
+      font-size: 1.1rem;
+    }
+
+    .name-entry:hover {
+      background: #274156;
+      border-left-color: gold;
+      transform: scale(1.02);
+    }
+
+    .matric {
+      font-family: monospace;
+      background: #010a13;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      color: #7affc6;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      font-size: 0.9rem;
+    }
+
+    .name {
+      font-weight: 500;
+      color: white;
+    }
+
+    /* animation */
+    @keyframes scrollUp {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(calc(-250px * 3)); } /* approximate height of 5 entries times something – but infinite loop fine */
+    }
+
+    /* pause on hover (nice) */
+    .names-scroll:hover .scroll-content {
+      animation-play-state: paused;
+    }
+
+    /* footer note */
+    .note {
+      margin-top: 1rem;
+      color: #a0bcdd;
+      font-size: 0.8rem;
+      text-align: center;
+      border-top: 1px solid #2d4f70;
+      padding-top: 0.8rem;
+    }
+
+    /* responsive */
+    @media (max-width: 900px) {
+      .dashboard {
+        flex-direction: column;
+      }
+      .marquee-vertical {
+        max-height: 400px;
+      }
+    }
+  </style>
 </head>
 <body>
 
+<div class="dashboard">
+  <!-- LEFT SIDE: video/canvas and filter controls -->
+  <div class="studio">
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="button-panel">
+      <button class="btn btn-primary" onclick="takePhoto()">
+        <span>📸</span> TAKE PHOTO
+      </button>
+      <button class="btn btn-filter" id="filterGlasses" onclick="setFilter('glasses')">
+        <span>👓</span> GLASSES
+      </button>
+      <!-- other filters commented as in original, but you can uncomment later -->
+      <!--
+      <button class="btn btn-filter" onclick="setFilter('mustache')">🪒 MUSTACHE</button>
+      <button class="btn btn-filter" onclick="setFilter('flatcap')">🧢 FLATCAP</button>
+      -->
+    </div>
+    <!-- subtle hint -->
+    <div style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.7; letter-spacing: 1px">
+      ⚡ mediapipe face mesh · group 2 prototype
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE: VERTICAL MARQUEE with all members & details -->
+  <div class="marquee-vertical">
+    <div class="marquee-header">
+      <div class="group-badge">✦ GROUP 02 ✦</div>
+      <div class="course-title">MCEN521 – MOBILE ROBOTICS</div>
+      <div class="prof">Prof. Alim Sabur</div>
+    </div>
+
+    <!-- infinite vertical scroll container -->
+    <div class="names-scroll">
+      <div class="scroll-content">
+        <!-- repeated twice to ensure seamless loop (you have 11 entries, we duplicate) -->
+        <!-- first copy -->
+        <div class="name-entry"><span class="name">Opeyemi Ganiyu</span><span class="matric">U19MN1032</span></div>
+        <div class="name-entry"><span class="name">Daniel Elijah</span><span class="matric">U19MN1013</span></div>
+        <div class="name-entry"><span class="name">Jeffery Emerson</span><span class="matric">U19MN1020</span></div>
+        <div class="name-entry"><span class="name">Bounty Adetula</span><span class="matric">U19MN1030</span></div>
+        <div class="name-entry"><span class="name">Yusuf Mu'azu</span><span class="matric">U19MN1036</span></div>
+        <div class="name-entry"><span class="name">Kemba Justin</span><span class="matric">U21MN2002</span></div>
+        <div class="name-entry"><span class="name">Abbas Mahmood</span><span class="matric">U19MN1007</span></div>
+        <div class="name-entry"><span class="name">Junaidu Abubakar</span><span class="matric">U21MN2002</span></div>
+        <div class="name-entry"><span class="name">Folorunsho Ibrahim</span><span class="matric">U19MN1027</span></div>
+        <div class="name-entry"><span class="name">Abdulazeez Goga</span><span class="matric">U21MN2004</span></div>
+        <!-- second copy (exactly same order) to make scroll smooth -->
+        <div class="name-entry"><span class="name">Opeyemi Ganiyu</span><span class="matric">U19MN1032</span></div>
+        <div class="name-entry"><span class="name">Daniel Elijah</span><span class="matric">U19MN1013</span></div>
+        <div class="name-entry"><span class="name">Jeffery Emerson</span><span class="matric">U19MN1020</span></div>
+        <div class="name-entry"><span class="name">Bounty Adetula</span><span class="matric">U19MN1030</span></div>
+        <div class="name-entry"><span class="name">Yusuf Mu'azu</span><span class="matric">U19MN1036</span></div>
+        <div class="name-entry"><span class="name">Kemba Justin</span><span class="matric">U21MN2002</span></div>
+        <div class="name-entry"><span class="name">Abbas Mahmood</span><span class="matric">U19MN1007</span></div>
+        <div class="name-entry"><span class="name">Junaidu Abubakar</span><span class="matric">U21MN2002</span></div>
+        <div class="name-entry"><span class="name">Folorunsho Ibrahim</span><span class="matric">U19MN1027</span></div>
+        <div class="name-entry"><span class="name">Abdulazeez Goga</span><span class="matric">U21MN2004</span></div>
+      </div>
+    </div>
+    <div class="note">
+      ⬆️ vertical marquee · group 2 members ⬆️
+    </div>
+  </div>
+</div>
+
+<!-- script that holds face mesh logic (identical to your original script.js but with active filter highlight) -->
+<script>
+  // ========== MEDIAPIPE FACE MESH SETUP ==========
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // initialize faceMesh
+  const faceMesh = new FaceMesh({
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+  });
+  faceMesh.setOptions({
+    maxNumFaces: 1,
+    refineLandmarks: true,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
+
+  faceMesh.onResults(onResults);
+
+  const camera = new Camera(video, {
+    onFrame: async () => {
+      await faceMesh.send({ image: video });
+    },
+    width: 640,
+    height: 480
+  });
+  camera.start();
+
+  // current filter (only 'glasses' is active in your UI, but we keep the variable)
+  let currentFilter = 'none'; // or glasses
+
+  // call when filter button clicked (also highlight active)
+  window.setFilter = function(filterType) {
+    currentFilter = filterType;
+    // update active style on buttons
+    document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+    if (filterType === 'glasses') {
+      document.getElementById('filterGlasses').classList.add('active');
+    }
+    // you can extend with other filters if needed
+    console.log('Filter set to:', filterType);
+  };
+
+  // default highlight glasses (optional)
+  window.onload = function() {
+    setFilter('glasses');  // glasses active by default
+  };
+
+  // drawing function with overlay (stub for glasses, etc.)
+  function onResults(results) {
+    // preserve mirror effect
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      const landmarks = results.multiFaceLandmarks[0];
+
+      // ----- apply filter based on currentFilter -----
+      if (currentFilter === 'glasses') {
+        drawGlasses(landmarks);
+      }
+      // you can add mustache or cap later (stubs)
+    }
+    ctx.restore();
+  }
+
+  // super stylish glasses drawing using face landmarks (MediaPipe iris / cheeks)
+  function drawGlasses(landmarks) {
+    // approximate indices for left and right eye outer/inner
+    const leftEyeOuter = landmarks[33];   // right eye outer (mirrored)
+    const leftEyeInner = landmarks[133]; 
+    const rightEyeOuter = landmarks[362]; // left eye outer
+    const rightEyeInner = landmarks[263];
+
+    // get bridge of nose (for frame connector)
+    const noseBridge = landmarks[168]; // midpoint between eyes
+
+    if (!leftEyeOuter || !rightEyeOuter || !noseBridge) return;
+
+    // convert normalized coordinates to canvas pixels
+    const w = canvas.width;
+    const h = canvas.height;
+
+    function toPx(landmark) {
+      return { x: landmark.x * w, y: landmark.y * h };
+    }
+
+    const leftOut = toPx(leftEyeOuter);
+    const leftIn = toPx(leftEyeInner);
+    const rightOut = toPx(rightEyeOuter);
+    const rightIn = toPx(rightEyeInner);
+    const nose = toPx(noseBridge);
+
+    // lens width and height (adapt dynamically)
+    const leftLensWidth = (leftIn.x - leftOut.x) * 1.8;
+    const leftLensHeight = leftLensWidth * 0.55;
+    const rightLensWidth = (rightOut.x - rightIn.x) * 1.8;
+    const rightLensHeight = rightLensWidth * 0.55;
+
+    // draw left lens (cyberpunk style)
+    ctx.beginPath();
+    ctx.ellipse(leftOut.x + leftLensWidth*0.35, leftOut.y - leftLensHeight*0.1, leftLensWidth*0.6, leftLensHeight*0.6, 0, 0, 2*Math.PI);
+    ctx.strokeStyle = '#00f7ff';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([8, 6]);
+    ctx.stroke();
+    ctx.setLineDash([]); // reset
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#00e0ff30';
+    ctx.fill();
+
+    // right lens
+    ctx.beginPath();
+    ctx.ellipse(rightOut.x - rightLensWidth*0.35, rightOut.y - rightLensHeight*0.1, rightLensWidth*0.6, rightLensHeight*0.6, 0, 0, 2*Math.PI);
+    ctx.strokeStyle = '#00f7ff';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([8, 6]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#40a0ff40';
+    ctx.fill();
+
+    // bridge
+    ctx.beginPath();
+    ctx.moveTo(leftOut.x + leftLensWidth*0.7, leftOut.y - leftLensHeight*0.2);
+    ctx.lineTo(nose.x, nose.y - 10);
+    ctx.lineTo(rightOut.x - rightLensWidth*0.7, rightOut.y - rightLensHeight*0.2);
+    ctx.strokeStyle = '#aaaaaa';
+    ctx.lineWidth = 5;
+    ctx.stroke();
+
+    // side arms (temples)
+    ctx.beginPath();
+    ctx.moveTo(leftOut.x + 5, leftOut.y - 5);
+    ctx.lineTo(leftOut.x - 40, leftOut.y + 10);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#cccccc';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(rightOut.x - 5, rightOut.y - 5);
+    ctx.lineTo(rightOut.x + 40, rightOut.y + 10);
+    ctx.stroke();
+  }
+
+  // expose takePhoto (as in original)
+  window.takePhoto = function() {
+    const dataURL = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = 'filter-photo.png';
+    link.href = dataURL;
+    link.click();
+  };
+</script>
+
+<!-- keep hidden video (mediapipe requirement) -->
 <video id="video" style="display:none;"></video>
-<canvas id="canvas"></canvas>
-<br>
-<button onclick="takePhoto()">Take Photo</button>
-<button onclick="setFilter('glasses')">Glasses</button>
-  <!---
-<button onclick="setFilter('mustache')">Mustache</button>
-<button onclick="setFilter('flatcap')">Flatcap</button>
-  -->
-<script src="script.js"></script>
 </body>
 </html>
