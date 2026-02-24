@@ -80,7 +80,7 @@ if (currentFilter === "clownface") {
   const mHeight = mWidth * 0.4;
 
   canvasCtx.drawImage(
-    mustache,
+    clownface,
     mx - mWidth / 2,
     my,
     mWidth,
