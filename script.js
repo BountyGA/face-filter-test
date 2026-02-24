@@ -1,4 +1,29 @@
 let currentFilter = "glasses";
+// Add these three lines:
+let filterOffsetX = 0;    // Manual left/right adjustment
+let filterOffsetY = 0;    // Manual up/down adjustment
+let filterScale = 1.0;    // Manual size adjustment
+let currentFilter = "glasses";
+
+function adjustFilter(direction) {
+  const step = 5;        // Pixels to move
+  const scaleStep = 0.1; // Size change amount (10%)
+  
+  switch(direction) {
+    case 'up': filterOffsetY -= step; break;
+    case 'down': filterOffsetY += step; break;
+    case 'left': filterOffsetX -= step; break;
+    case 'right': filterOffsetX += step; break;
+    case 'bigger': filterScale += scaleStep; break;
+    case 'smaller': filterScale = Math.max(0.5, filterScale - scaleStep); break;
+  }
+}
+
+function resetFilterAdjustments() {
+  filterOffsetX = 0;
+  filterOffsetY = 0;
+  filterScale = 1.0;
+}
 
 // Load images with error handling
 const glasses = new Image();
@@ -67,63 +92,86 @@ faceMesh.onResults(results => {
       const centerX = (x1 + x2) / 2;
       const centerY = (y1 + y2) / 2;
       
-      // Apply filter based on selection
-      if (currentFilter === "glasses" && glasses.complete) {
-        const glassesWidth = eyeDistance * 2.2;
-        const glassesHeight = glassesWidth * 0.4;
-        
-        canvasCtx.drawImage(
-          glasses,
-          centerX - glassesWidth / 2,
-          centerY - glassesHeight / 2,
-          glassesWidth,
-          glassesHeight
-        );
-      }
+      // Get face dimensions for better scaling
+      const faceTop = landmarks[10]; // forehead
+      const faceBottom = landmarks[152]; // chin
+      const faceLeft = landmarks[234]; // left cheek
+      const faceRight = landmarks[454]; // right cheek
       
-      else if (currentFilter === "clownface" && clownface.complete) {
-        // Use nose for clown face
+      const faceWidth = Math.abs(
+        ((1 - faceRight.x) * canvasElement.width) - 
+        ((1 - faceLeft.x) * canvasElement.width)
+      );
+      const faceHeight = Math.abs(
+        (faceBottom.y * canvasElement.height) - 
+        (faceTop.y * canvasElement.height)
+      );
+      
+      // Apply filter based on selection
+     if (currentFilter === "glasses" && glasses.complete) {
+          const glassesWidth = eyeDistance * 2.5 * filterScale;  // Added filterScale
+          const glassesHeight = glassesWidth * 0.35;
+          
+          canvasCtx.drawImage(
+            glasses,
+            centerX - glassesWidth / 2 + filterOffsetX,  // Added manual X adjustment
+            centerY - glassesHeight / 2 - (glassesHeight * 0.2) + filterOffsetY, // Added manual Y adjustment
+            glassesWidth,
+            glassesHeight
+          );
+        }
+      
+     else if (currentFilter === "clownface" && clownface.complete) {
         const nose = landmarks[1];
         const noseX = (1 - nose.x) * canvasElement.width;
         const noseY = nose.y * canvasElement.height;
         
-        const clownWidth = eyeDistance * 2.5;
-        const clownHeight = clownWidth * 0.6;
+        const faceWidth = Math.abs(
+          ((1 - landmarks[454].x) * canvasElement.width) - 
+          ((1 - landmarks[234].x) * canvasElement.width)
+        );
+        
+        const clownWidth = faceWidth * 1.2 * filterScale;  // Added filterScale
+        const clownHeight = clownWidth * 0.8;
         
         canvasCtx.drawImage(
           clownface,
-          noseX - clownWidth / 2,
-          noseY - clownHeight / 2,
+          centerX - clownWidth / 2 + filterOffsetX,  // Added manual X adjustment
+          centerY - clownHeight / 2 - (clownHeight * 0.1) + filterOffsetY, // Added manual Y adjustment
           clownWidth,
           clownHeight
         );
       }
-      
       else if (currentFilter === "hardhat" && hardhat.complete) {
-        // Use forehead for hard hat
         const forehead = landmarks[10];
         const fx = (1 - forehead.x) * canvasElement.width;
         const fy = forehead.y * canvasElement.height;
         
-        const capWidth = eyeDistance * 3.0;
-        const capHeight = capWidth * 0.6;
+        const leftBrow = landmarks[70];
+        const rightBrow = landmarks[300];
+        const leftBrowX = (1 - leftBrow.x) * canvasElement.width;
+        const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
+        const browDistance = Math.abs(rightBrowX - leftBrowX);
+        
+        const capWidth = browDistance * 2.2 * filterScale;  // Added filterScale
+        const capHeight = capWidth * 0.55;
         
         canvasCtx.drawImage(
           hardhat,
-          fx - capWidth / 2,
-          fy - capHeight * 0.8,
+          fx - capWidth / 2 + filterOffsetX,  // Added manual X adjustment
+          fy - capHeight * 0.7 + filterOffsetY, // Added manual Y adjustment
           capWidth,
           capHeight
         );
       }
-    }
+          }
   }
 });
 
-// Initialize camera with proper configuration - THIS IS THE ONLY CAMERA ACCESS
+// Initialize camera with proper configuration
 const camera = new Camera(videoElement, {
   onFrame: async () => {
-    if (videoElement.readyState >= 2) { // Check if video is playing
+    if (videoElement.readyState >= 2) {
       await faceMesh.send({ image: videoElement });
     }
   },
@@ -161,7 +209,6 @@ function setFilter(filter) {
   }
 }
 
-// Add a small delay to ensure everything is loaded
 window.addEventListener('load', () => {
   console.log('Page loaded, initializing...');
 });
