@@ -1,8 +1,10 @@
 let currentFilter = "glasses";
-// Add these three lines:
+// Add these five lines:
 let filterOffsetX = 0;    // Manual left/right adjustment
 let filterOffsetY = 0;    // Manual up/down adjustment
-let filterScale = 1.0;    // Manual size adjustment
+let filterScaleX = 1.0;   // Manual horizontal scale
+let filterScaleY = 1.0;   // Manual vertical scale
+let filterScale = 1.0;    // Keep for backward compatibility (optional)
 
 function adjustFilter(direction) {
   const step = 5;
@@ -13,8 +15,18 @@ function adjustFilter(direction) {
     case 'down': filterOffsetY += step; break;
     case 'left': filterOffsetX -= step; break;
     case 'right': filterOffsetX += step; break;
-    case 'bigger': filterScale += scaleStep; break;
-    case 'smaller': filterScale = Math.max(0.5, filterScale - scaleStep); break;
+    case 'bigger': 
+      filterScaleX += scaleStep; 
+      filterScaleY += scaleStep; 
+      break;
+    case 'smaller': 
+      filterScaleX = Math.max(0.5, filterScaleX - scaleStep);
+      filterScaleY = Math.max(0.5, filterScaleY - scaleStep);
+      break;
+    case 'wider': filterScaleX += scaleStep; break;
+    case 'narrower': filterScaleX = Math.max(0.5, filterScaleX - scaleStep); break;
+    case 'taller': filterScaleY += scaleStep; break;
+    case 'shorter': filterScaleY = Math.max(0.5, filterScaleY - scaleStep); break;
   }
   
   updateAdjustmentDisplay();
@@ -23,6 +35,8 @@ function adjustFilter(direction) {
 function resetFilterAdjustments() {
   filterOffsetX = 0;
   filterOffsetY = 0;
+  filterScaleX = 1.0;
+  filterScaleY = 1.0;
   filterScale = 1.0;
   updateAdjustmentDisplay();
 }
@@ -30,7 +44,7 @@ function resetFilterAdjustments() {
 function updateAdjustmentDisplay() {
   const display = document.getElementById('adjustmentDisplay');
   if (display) {
-    display.innerHTML = `X: ${filterOffsetX}, Y: ${filterOffsetY}, Scale: ${filterScale.toFixed(1)}x`;
+    display.innerHTML = `X:${filterOffsetX}, Y:${filterOffsetY} | W:${filterScaleX.toFixed(1)}x, H:${filterScaleY.toFixed(1)}x`;
   }
 }
 
@@ -114,8 +128,8 @@ faceMesh.onResults(results => {
       
       // Apply filter based on selection
       if (currentFilter === "glasses" && glasses.complete) {
-        const glassesWidth = eyeDistance * 2.5 * filterScale;
-        const glassesHeight = glassesWidth * 0.35;
+        const glassesWidth = eyeDistance * 2.5 * filterScaleX;  // Use X scale
+        const glassesHeight = glassesWidth * 0.35 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           glasses,
@@ -127,8 +141,8 @@ faceMesh.onResults(results => {
       }
       
       else if (currentFilter === "clownface" && clownface.complete) {
-        const clownWidth = faceWidth * 1.2 * filterScale;
-        const clownHeight = clownWidth * 0.8;
+        const clownWidth = faceWidth * 1.2 * filterScaleX;  // Use X scale
+        const clownHeight = clownWidth * 0.8 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           clownface,
@@ -150,8 +164,8 @@ faceMesh.onResults(results => {
         const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
-        const capWidth = browDistance * 2.2 * filterScale;
-        const capHeight = capWidth * 0.55;
+        const capWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
+        const capHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           hardhat,
