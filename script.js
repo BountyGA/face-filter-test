@@ -1,7 +1,7 @@
 let currentFilter = "glasses";
 
 const mustache = new Image();
-mustache.src = "mustache.png";
+mustache.src = "clownface.png";
 
 const flatcap = new Image();
 flatcap.src = "flatcap.png";
@@ -69,7 +69,7 @@ faceMesh.onResults(results => {
   );
 }
 
-if (currentFilter === "mustache") {
+if (currentFilter === "clownface") {
   const nose = landmarks[1];
   const mouth = landmarks[13];
 
