@@ -329,6 +329,28 @@
               </div>
                    -->
             </div>
+                        <!-- Fine-tuning controls -->
+            <div class="row g-2 mt-3">
+              <div class="col-12">
+                <div class="btn-group w-100" role="group">
+                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('up')" style="font-size: 1.2rem;">⬆️</button>
+                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('down')" style="font-size: 1.2rem;">⬇️</button>
+                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('left')" style="font-size: 1.2rem;">⬅️</button>
+                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('right')" style="font-size: 1.2rem;">➡️</button>
+                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('bigger')" style="font-size: 1.2rem;">➕</button>
+                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('smaller')" style="font-size: 1.2rem;">➖</button>
+                  <button class="btn btn-sm btn-outline-warning" onclick="resetFilterAdjustments()" style="font-size: 1.2rem;">↺</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Optional: Show current adjustments -->
+            <div class="row g-2 mt-2">
+              <div class="col-12 text-center text-info small">
+                <span id="adjustmentDisplay">Use arrows to fine-tune filter</span>
+              </div>
+            </div>
+            
             <!-- Hint -->
             <div class="text-center text-sm-start" style="font-size: 0.8rem; opacity: 0.7; letter-spacing: 1px">
               ⚡ mediapipe face mesh · group 2 prototype
