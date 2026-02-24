@@ -3,7 +3,7 @@ let currentFilter = "glasses";
 const clownface = new Image();
 clownface.src = "clownface.png";
 
-const flatcap = new Image();
+const hardhat = new Image();
 flatcap.src = "hardhat.png";
 
 
