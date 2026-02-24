@@ -68,7 +68,16 @@ faceMesh.onResults(results => {
     glassesHeight
   );
 }
-
+       if (currentFilter === "clownface") {
+  canvasCtx.drawImage(
+    clownface,
+    centerX - glassesWidth / 2,
+    centerY - glassesHeight / 2,
+    glassesWidth,
+    glassesHeight
+  );
+}
+/*
 if (currentFilter === "clownface") {
   const nose = landmarks[1];
   const mouth = landmarks[13];
@@ -87,6 +96,7 @@ if (currentFilter === "clownface") {
     mHeight
   );
 }
+*/
       if (currentFilter === "flatcap") {
 
   const forehead = landmarks[10];
