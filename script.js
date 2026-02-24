@@ -3,11 +3,10 @@ let currentFilter = "glasses";
 let filterOffsetX = 0;    // Manual left/right adjustment
 let filterOffsetY = 0;    // Manual up/down adjustment
 let filterScale = 1.0;    // Manual size adjustment
-let currentFilter = "glasses";
 
 function adjustFilter(direction) {
-  const step = 5;        // Pixels to move
-  const scaleStep = 0.1; // Size change amount (10%)
+  const step = 5;
+  const scaleStep = 0.1;
   
   switch(direction) {
     case 'up': filterOffsetY -= step; break;
@@ -17,12 +16,22 @@ function adjustFilter(direction) {
     case 'bigger': filterScale += scaleStep; break;
     case 'smaller': filterScale = Math.max(0.5, filterScale - scaleStep); break;
   }
+  
+  updateAdjustmentDisplay();
 }
 
 function resetFilterAdjustments() {
   filterOffsetX = 0;
   filterOffsetY = 0;
   filterScale = 1.0;
+  updateAdjustmentDisplay();
+}
+
+function updateAdjustmentDisplay() {
+  const display = document.getElementById('adjustmentDisplay');
+  if (display) {
+    display.innerHTML = `X: ${filterOffsetX}, Y: ${filterOffsetY}, Scale: ${filterScale.toFixed(1)}x`;
+  }
 }
 
 // Load images with error handling
@@ -93,55 +102,43 @@ faceMesh.onResults(results => {
       const centerY = (y1 + y2) / 2;
       
       // Get face dimensions for better scaling
-      const faceTop = landmarks[10]; // forehead
-      const faceBottom = landmarks[152]; // chin
-      const faceLeft = landmarks[234]; // left cheek
-      const faceRight = landmarks[454]; // right cheek
+      const faceTop = landmarks[10];
+      const faceBottom = landmarks[152];
+      const faceLeft = landmarks[234];
+      const faceRight = landmarks[454];
       
       const faceWidth = Math.abs(
         ((1 - faceRight.x) * canvasElement.width) - 
         ((1 - faceLeft.x) * canvasElement.width)
       );
-      const faceHeight = Math.abs(
-        (faceBottom.y * canvasElement.height) - 
-        (faceTop.y * canvasElement.height)
-      );
       
       // Apply filter based on selection
-     if (currentFilter === "glasses" && glasses.complete) {
-          const glassesWidth = eyeDistance * 2.5 * filterScale;  // Added filterScale
-          const glassesHeight = glassesWidth * 0.35;
-          
-          canvasCtx.drawImage(
-            glasses,
-            centerX - glassesWidth / 2 + filterOffsetX,  // Added manual X adjustment
-            centerY - glassesHeight / 2 - (glassesHeight * 0.2) + filterOffsetY, // Added manual Y adjustment
-            glassesWidth,
-            glassesHeight
-          );
-        }
-      
-     else if (currentFilter === "clownface" && clownface.complete) {
-        const nose = landmarks[1];
-        const noseX = (1 - nose.x) * canvasElement.width;
-        const noseY = nose.y * canvasElement.height;
+      if (currentFilter === "glasses" && glasses.complete) {
+        const glassesWidth = eyeDistance * 2.5 * filterScale;
+        const glassesHeight = glassesWidth * 0.35;
         
-        const faceWidth = Math.abs(
-          ((1 - landmarks[454].x) * canvasElement.width) - 
-          ((1 - landmarks[234].x) * canvasElement.width)
+        canvasCtx.drawImage(
+          glasses,
+          centerX - glassesWidth / 2 + filterOffsetX,
+          centerY - glassesHeight / 2 - (glassesHeight * 0.2) + filterOffsetY,
+          glassesWidth,
+          glassesHeight
         );
-        
-        const clownWidth = faceWidth * 1.2 * filterScale;  // Added filterScale
+      }
+      
+      else if (currentFilter === "clownface" && clownface.complete) {
+        const clownWidth = faceWidth * 1.2 * filterScale;
         const clownHeight = clownWidth * 0.8;
         
         canvasCtx.drawImage(
           clownface,
-          centerX - clownWidth / 2 + filterOffsetX,  // Added manual X adjustment
-          centerY - clownHeight / 2 - (clownHeight * 0.1) + filterOffsetY, // Added manual Y adjustment
+          centerX - clownWidth / 2 + filterOffsetX,
+          centerY - clownHeight / 2 - (clownHeight * 0.1) + filterOffsetY,
           clownWidth,
           clownHeight
         );
       }
+      
       else if (currentFilter === "hardhat" && hardhat.complete) {
         const forehead = landmarks[10];
         const fx = (1 - forehead.x) * canvasElement.width;
@@ -153,22 +150,22 @@ faceMesh.onResults(results => {
         const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
-        const capWidth = browDistance * 2.2 * filterScale;  // Added filterScale
+        const capWidth = browDistance * 2.2 * filterScale;
         const capHeight = capWidth * 0.55;
         
         canvasCtx.drawImage(
           hardhat,
-          fx - capWidth / 2 + filterOffsetX,  // Added manual X adjustment
-          fy - capHeight * 0.7 + filterOffsetY, // Added manual Y adjustment
+          fx - capWidth / 2 + filterOffsetX,
+          fy - capHeight * 0.7 + filterOffsetY,
           capWidth,
           capHeight
         );
       }
-          }
+    }
   }
 });
 
-// Initialize camera with proper configuration
+// Initialize camera
 const camera = new Camera(videoElement, {
   onFrame: async () => {
     if (videoElement.readyState >= 2) {
@@ -179,7 +176,6 @@ const camera = new Camera(videoElement, {
   height: 480
 });
 
-// Start camera with error handling
 camera.start().then(() => {
   console.log('Camera started successfully');
 }).catch(err => {
@@ -197,12 +193,10 @@ function takePhoto() {
 function setFilter(filter) {
   currentFilter = filter;
   
-  // Remove active class from all filter buttons
   document.querySelectorAll('.btn-filter-custom').forEach(btn => {
     btn.classList.remove('active');
   });
   
-  // Add active to the clicked one
   const activeBtn = document.getElementById("filter" + filter);
   if (activeBtn) {
     activeBtn.classList.add("active");
