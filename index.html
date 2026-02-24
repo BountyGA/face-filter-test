@@ -3,16 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FILTR · group 2 | mobile robotics</title>
+  <title>FILTR · augmented face filters</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- MediaPipe libraries -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts - Modern pairing -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* CSS Variables for easy theming */
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --secondary: #ec4899;
+      --accent: #14b8a6;
+      --dark-1: #0f172a;
+      --dark-2: #1e293b;
+      --dark-3: #334155;
+      --light-1: #f8fafc;
+      --light-2: #e2e8f0;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --gradient-1: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      --gradient-2: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+      --gradient-3: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+      --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+      --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.5);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -20,33 +45,131 @@
     }
 
     body {
-      background: #0b0d10;
-      font-family: 'Space Grotesk', sans-serif;
+      background: var(--dark-1);
+      font-family: 'Inter', sans-serif;
       min-height: 100vh;
-      padding: 16px;
-      color: #eef5ff;
+      padding: 20px;
+      color: var(--light-1);
+      background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 30%),
+                        radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 30%);
     }
 
-    /* main card – futuristic glass panel */
-    .dashboard {
-      background: rgba(18, 22, 30, 0.8);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(66, 212, 243, 0.25);
-      border-radius: 2rem;
-      padding: 1.5rem;
-      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 255, 255, 0.1) inset;
+    /* Main container */
+    .app-container {
+      max-width: 1600px;
+      margin: 0 auto;
     }
 
-    /* Canvas wrapper */
-    .canvas-wrapper {
+    /* Header with animated gradient */
+    .app-header {
+      margin-bottom: 24px;
+      padding: 0 8px;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+      box-shadow: var(--shadow-md);
+      transform: rotate(0deg);
+      transition: transform 0.3s ease;
+    }
+
+    .logo-icon:hover {
+      transform: rotate(10deg) scale(1.1);
+    }
+
+    .logo-text h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text p {
+      font-size: 14px;
+      color: var(--light-2);
+      opacity: 0.8;
+      margin: 0;
+      font-weight: 400;
+    }
+
+    .group-badge-modern {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 100px;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-pill {
+      background: var(--gradient-2);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 14px;
+      color: white;
+    }
+
+    .badge-text {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--light-2);
+    }
+
+    /* Main card */
+    .dashboard-modern {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 32px;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Canvas wrapper with enhanced styling */
+    .canvas-wrapper-modern {
       position: relative;
-      border-radius: 1.5rem;
+      border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 20px 35px -8px #00000080, 0 0 0 2px #2cd4ff33;
       aspect-ratio: 4/3;
-      background: #1a1f2b;
-      width: 100%;
+      background: var(--dark-2);
+      border: 2px solid rgba(99, 102, 241, 0.3);
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s ease;
+    }
+
+    .canvas-wrapper-modern:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
     }
 
     #canvas {
@@ -54,367 +177,854 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transform: scaleX(-1); /* mirror for selfie feel */
+      transform: scaleX(-1);
     }
 
-    /* Button styling */
-    .btn-custom {
-      background: #1e2533;
-      border: none;
-      border-radius: 3rem;
-      padding: 0.9rem 1.5rem;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 600;
-      font-size: 1rem;
-      letter-spacing: 0.5px;
-      color: #d6eaff;
-      cursor: pointer;
-      box-shadow: 0 8px 0 #0b0f17, 0 4px 20px #00ffff33;
-      transition: all 0.08s ease-out;
-      border: 1px solid #2dc9ff30;
-      width: 100%;
+    /* Camera overlay indicator */
+    .camera-status {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(4px);
-    }
-
-    .btn-custom:active {
-      transform: translateY(6px);
-      box-shadow: 0 4px 0 #0b0f17, 0 6px 18px #00e0ff80;
-    }
-
-    .btn-primary-custom {
-      background: #005c8a;
-      border-color: #6ef0ff;
-      color: white;
-      text-shadow: 0 2px 3px black;
-    }
-
-    .btn-filter-custom {
-      background: #132f42;
-      border-color: #40d9ff;
-    }
-
-    .btn-filter-custom.active {
-      background: #0d4b6e;
-      box-shadow: 0 8px 0 #06212e, 0 0 20px #00ddff;
-      border-color: #9af0ff;
-    }
-
-    /* Vertical marquee styling */
-    .marquee-vertical {
-      background: #0f1620e0;
-      backdrop-filter: blur(10px);
-      border-radius: 1.5rem;
-      padding: 1.5rem 1rem;
-      border: 1px solid #29d0ff40;
-      box-shadow: inset 0 0 30px #00000080, 0 15px 25px #000000;
+      padding: 6px 12px;
+      border-radius: 100px;
+      font-size: 12px;
       display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 500px;
-      max-height: 600px;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 10;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Control sections */
+    .control-section {
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: 20px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .section-title i {
+      font-size: 20px;
+      color: var(--primary);
+    }
+
+    .section-title h3 {
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--light-2);
+      margin: 0;
+    }
+
+    /* Filter buttons - modern redesign */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .filter-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      position: relative;
       overflow: hidden;
     }
 
-    .marquee-header {
-      text-align: center;
-      margin-bottom: 1.2rem;
-      border-bottom: 2px dashed #2fc7ff60;
-      padding-bottom: 1rem;
+    .filter-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-1);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
     }
 
-    .group-badge {
-      font-size: 1.5rem;
+    .filter-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .filter-card.active {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .filter-card.active::before {
+      transform: translateX(0);
+    }
+
+    .filter-emoji {
+      font-size: 32px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+    }
+
+    .filter-name {
       font-weight: 700;
-      background: linear-gradient(145deg, #98f0ff, #50b8ff);
+      font-size: 16px;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #fff, #94a3b8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 2px;
     }
 
-    .course-title {
-      font-size: 0.9rem;
-      background: #1d334a;
-      padding: 0.3rem 1rem;
-      border-radius: 50px;
+    .filter-matric {
+      font-family: 'Plus Jakarta Sans', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.3);
+      padding: 4px 8px;
+      border-radius: 100px;
       display: inline-block;
-      margin-top: 8px;
-      font-weight: 400;
-      border: 1px solid cyan;
+      color: var(--primary-light);
+      letter-spacing: 0.5px;
     }
 
-    .prof {
-      color: #b2f0ff;
-      font-weight: 300;
-      margin-top: 4px;
-      font-size: 0.85rem;
+    /* Adjustment controls - modern redesign */
+    .adjustment-panel {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 20px;
+      padding: 16px;
+      margin: 20px 0;
     }
 
-    /* Names scroll container */
-    .names-scroll {
-      flex: 1;
-      overflow-y: hidden;
-      mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
-      -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
-      padding: 0.2rem;
-    }
-
-    .scroll-content {
-      animation: scrollUp 22s linear infinite;
+    .adjustment-row {
       display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
     }
 
-    .name-entry {
+    .btn-adjust {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      min-width: 80px;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .btn-adjust i {
+      font-size: 16px;
+    }
+
+    .btn-adjust:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .btn-adjust.primary {
+      background: var(--gradient-1);
+      border: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-adjust.primary:hover {
+      box-shadow: var(--shadow-glow);
+      transform: scale(1.05);
+    }
+
+    .btn-adjust.warning {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--warning);
+    }
+
+    .btn-adjust.warning:hover {
+      background: rgba(245, 158, 11, 0.3);
+    }
+
+    /* Adjustment display */
+    .adjustment-display-modern {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 100px;
+      padding: 12px 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .display-item {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      background: #1d2a38c0;
-      padding: 0.7rem 1rem;
-      border-radius: 50px;
-      border-left: 6px solid #0ef;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 4px 8px #00000060;
-      transition: 0.2s;
-      font-size: 0.95rem;
+      gap: 8px;
+      font-size: 14px;
     }
 
-    .name-entry:hover {
-      background: #274156;
-      border-left-color: gold;
-      transform: scale(1.02);
+    .display-item i {
+      color: var(--primary);
+      font-size: 16px;
     }
 
-    .matric {
-      font-family: monospace;
-      background: #010a13;
-      padding: 0.2rem 0.6rem;
-      border-radius: 40px;
-      color: #7affc6;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-    }
-
-    .name {
-      font-weight: 500;
+    .display-item span {
+      font-weight: 600;
       color: white;
-      flex: 1;
     }
 
-    @keyframes scrollUp {
+    .display-item small {
+      color: var(--light-2);
+      font-weight: 400;
+    }
+
+    /* Right panel - team marquee redesign */
+    .team-panel {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 28px;
+      padding: 24px 16px;
+      height: 100%;
+      min-height: 650px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .team-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-2);
+    }
+
+    .team-header {
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .team-title {
+      font-size: 24px;
+      font-weight: 800;
+      background: var(--gradient-2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .team-subtitle {
+      font-size: 14px;
+      color: var(--light-2);
+      opacity: 0.7;
+    }
+
+    .team-stats {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .stat-badge {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .stat-badge i {
+      color: var(--accent);
+      margin-right: 6px;
+    }
+
+    /* Enhanced scroll container */
+    .team-scroll-modern {
+      flex: 1;
+      overflow-y: hidden;
+      position: relative;
+      mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
+      padding: 8px 0;
+    }
+
+    .scroll-content-modern {
+      animation: scrollTeam 25s linear infinite;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @keyframes scrollTeam {
       0% { transform: translateY(0); }
       100% { transform: translateY(-50%); }
     }
 
-    .names-scroll:hover .scroll-content {
-      animation-play-state: paused;
+    .team-member-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
     }
 
-    .note {
-      margin-top: 1rem;
-      color: #a0bcdd;
-      font-size: 0.75rem;
-      text-align: center;
-      border-top: 1px solid #2d4f70;
-      padding-top: 0.8rem;
+    .team-member-card:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--primary);
+      transform: translateX(5px);
     }
 
-    /* Bootstrap overrides */
-    .row {
-      margin: 0;
-    }
-    
-    [class*="col-"] {
-      padding: 8px;
+    .member-avatar {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      color: white;
+      box-shadow: var(--shadow-sm);
     }
 
-    /* Fix for mobile */
-    @media (max-width: 768px) {
-      body {
-        padding: 8px;
-      }
-      
-      .dashboard {
-        padding: 1rem;
-      }
-      
-      .marquee-vertical {
+    .member-info {
+      flex: 1;
+    }
+
+    .member-name {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 4px;
+      color: white;
+    }
+
+    .member-details {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+    }
+
+    .member-matric {
+      background: rgba(20, 184, 166, 0.2);
+      padding: 2px 8px;
+      border-radius: 100px;
+      color: var(--accent);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .member-filter {
+      color: var(--light-2);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .member-filter i {
+      font-size: 10px;
+      color: var(--primary);
+    }
+
+    /* Take photo button - special styling */
+    .btn-photo {
+      background: var(--gradient-3);
+      border: none;
+      border-radius: 18px;
+      padding: 16px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 1px;
+      color: white;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+    }
+
+    .btn-photo:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-photo i {
+      font-size: 20px;
+    }
+
+    /* Footer hint */
+    .hint-modern {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--light-2);
+      background: rgba(255, 255, 255, 0.02);
+      padding: 12px 16px;
+      border-radius: 100px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .hint-modern i {
+      color: var(--primary);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .team-panel {
         min-height: 400px;
-        max-height: 450px;
-        margin-top: 1rem;
+        margin-top: 20px;
       }
       
-      .btn-custom {
-        padding: 0.8rem 1rem;
-        font-size: 0.9rem;
+      .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
       
-      .name-entry {
-        padding: 0.6rem 0.8rem;
-        font-size: 0.85rem;
+      .adjustment-row {
+        gap: 8px;
       }
       
-      .matric {
-        font-size: 0.7rem;
-        padding: 0.15rem 0.4rem;
+      .btn-adjust {
+        padding: 10px 12px;
+        min-width: 70px;
+        font-size: 13px;
       }
     }
 
-    /* Landscape mode fix */
-    @media (max-height: 600px) and (orientation: landscape) {
-      .marquee-vertical {
-        min-height: 300px;
-        max-height: 350px;
+    @media (max-width: 576px) {
+      body {
+        padding: 12px;
       }
       
-      .canvas-wrapper {
-        aspect-ratio: 16/9;
+      .dashboard-modern {
+        padding: 16px;
       }
+      
+      .logo-text h1 {
+        font-size: 22px;
+      }
+      
+      .group-badge-modern {
+        padding: 6px 12px;
+      }
+      
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .btn-adjust {
+        width: 100%;
+      }
+      
+      .adjustment-display-modern {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        border-radius: 20px;
+      }
+    }
+
+    /* Loading animation */
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      border-radius: 24px;
+      backdrop-filter: blur(5px);
+    }
+
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(99, 102, 241, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <div class="container-fluid p-0">
-    <div class="dashboard">
-      <!-- Bootstrap Grid -->
-      <div class="row g-3">
-        <!-- LEFT COLUMN: Canvas and Controls -->
-        <div class="col-12 col-lg-8">
-          <div class="d-flex flex-column gap-3">
-            <!-- Canvas -->
-            <div class="canvas-wrapper">
-              <canvas id="canvas"></canvas>
-            </div>
-            
-              <!-- Fine-tuning controls -->
-                <div class="row g-2 mt-3">
-                  <div class="col-12">
-                    <div class="btn-group w-100 mb-2" role="group">
-                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('up')" style="font-size: 1.2rem;">⬆️</button>
-                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('down')" style="font-size: 1.2rem;">⬇️</button>
-                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('left')" style="font-size: 1.2rem;">⬅️</button>
-                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('right')" style="font-size: 1.2rem;">➡️</button>
-                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('bigger')" style="font-size: 1.2rem;">➕</button>
-                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('smaller')" style="font-size: 1.2rem;">➖</button>
-                      <button class="btn btn-sm btn-outline-warning" onclick="resetFilterAdjustments()" style="font-size: 1.2rem;">↺</button>
-                    </div>
-                    
-                    <!-- New horizontal/vertical controls -->
-                    <div class="btn-group w-100" role="group">
-                      <button class="btn btn-sm btn-outline-primary" onclick="adjustFilter('wider')" style="font-size: 1rem;">⬌ WIDER</button>
-                      <button class="btn btn-sm btn-outline-primary" onclick="adjustFilter('narrower')" style="font-size: 1rem;">⬍ NARROWER</button>
-                      <button class="btn btn-sm btn-outline-success" onclick="adjustFilter('taller')" style="font-size: 1rem;">⬆︎ TALLER</button>
-                      <button class="btn btn-sm btn-outline-success" onclick="adjustFilter('shorter')" style="font-size: 1rem;">⬇︎ SHORTER</button>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Show current adjustments -->
-                <div class="row g-2 mt-2">
-                  <div class="col-12 text-center text-info small" style="background: rgba(0,0,0,0.3); padding: 5px; border-radius: 20px;">
-                    <span id="adjustmentDisplay">Position: X:0, Y:0 | Size: W:1.0x, H:1.0x</span>
-                  </div>
-                </div>
-            <!-- Button Panel -->
-            <div class="row g-2">
-              <div class="col-12 col-sm-6">
-                <button class="btn-custom btn-primary-custom" onclick="takePhoto()">
-                  <span></span> TAKE PHOTO
-                </button>
-              </div>
-              <div class="col-12 col-sm-6">
-                  <div class="d-flex flex-column">
-                      <small class="text-info">U19MN1030</small>
-                      <button class="btn-custom btn-filter-custom active"
-                              id="filterglasses"
-                              onclick="setFilter('glasses')">
-                          GLASSES
-                      </button>
-                  </div>
-              </div>
-              
-              <div class="col-12 col-sm-6">
-                 <div class="d-flex flex-column">
-                      <small class="text-info">U19MN1020</small>
-              <button class="btn-custom btn-filter-custom"
-                      id="filterclownface"
-                      onclick="setFilter('clownface')">
-                CLOWNFACE
-              </button>
-              </div>
-              </div>
-              
-               <div class="col-12 col-sm-6">
-                 <div class="d-flex flex-column">
-                      <small class="text-info">U19MN1013</small>
-              <button class="btn-custom btn-filter-custom"
-                      id="filterhardhat"
-                      onclick="setFilter('hardhat')">
-                HARD HAT
-              </button>
-              </div>  
-               </div>
-              <!---
-              <div class="col-12 col-sm-6">
-                // Add these to your filters section in the HTML
-              <button class="btn-custom btn-filter-custom" id="filterclownmouth" onclick="setFilter('clownmouth')">
-                CLOWN MOUTH
-              </button>
-              <button class="btn-custom btn-filter-custom" id="filterclowneyes" onclick="setFilter('clowneyes')">
-                CLOWN EYES
-              </button>
-              </div>
-                   -->
-            </div>
-                     
-            <!-- Hint -->
-            <div class="text-center text-sm-start" style="font-size: 0.8rem; opacity: 0.7; letter-spacing: 1px">
-              ⚡ mediapipe face mesh · group 2 prototype
-            </div>
+  <div class="app-container">
+    <!-- Header -->
+    <div class="app-header">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-camera-retro"></i>
+          </div>
+          <div class="logo-text">
+            <h1>FILTR</h1>
+            <p>augmented face filters</p>
           </div>
         </div>
-        
-        <!-- RIGHT COLUMN: Vertical Marquee -->
-        <div class="col-12 col-lg-4">
-          <div class="marquee-vertical">
-            <div class="marquee-header">
-              <div class="group-badge">✦ GROUP 02 ✦</div>
-              <div class="course-title">MCEN521 – MOBILE ROBOTICS</div>
-              <div class="prof">Prof. Alim Sabur</div>
-            </div>
+        <div class="group-badge-modern">
+          <span class="badge-pill">GROUP 02</span>
+          <span class="badge-text">MCEN521 · Mobile Robotics</span>
+        </div>
+      </div>
+    </div>
 
-            <!-- Infinite vertical scroll -->
-            <div class="names-scroll">
-              <div class="scroll-content">
-                <!-- First copy -->
-                <div class="name-entry"><span class="name">Opeyemi Ganiyu</span><span class="matric">U19MN1032</span></div>
-                <div class="name-entry"><span class="name">Daniel Elijah</span><span class="matric">U19MN1013</span></div>
-                <div class="name-entry"><span class="name">Jeffery Emerson</span><span class="matric">U19MN1020</span></div>
-                <div class="name-entry"><span class="name">Bounty Adetula</span><span class="matric">U19MN1030</span></div>
-                <div class="name-entry"><span class="name">Yusuf Mu'azu</span><span class="matric">U19MN1036</span></div>
-                <div class="name-entry"><span class="name">Kemba Justin</span><span class="matric">U21MN2006</span></div>
-                <div class="name-entry"><span class="name">Abbas Mahmood</span><span class="matric">U19MN1007</span></div>
-                <div class="name-entry"><span class="name">Junaidu Abubakar</span><span class="matric">U21MN2002</span></div>
-                <div class="name-entry"><span class="name">Folorunsho Ibrahim</span><span class="matric">U19MN1027</span></div>
-                <div class="name-entry"><span class="name">Abdulazeez Goga</span><span class="matric">U21MN2004</span></div>
-                <!-- Second copy for seamless loop -->
-                <div class="name-entry"><span class="name">Opeyemi Ganiyu</span><span class="matric">U19MN1032</span></div>
-                <div class="name-entry"><span class="name">Daniel Elijah</span><span class="matric">U19MN1013</span></div>
-                <div class="name-entry"><span class="name">Jeffery Emerson</span><span class="matric">U19MN1020</span></div>
-                <div class="name-entry"><span class="name">Bounty Adetula</span><span class="matric">U19MN1030</span></div>
-                <div class="name-entry"><span class="name">Yusuf Mu'azu</span><span class="matric">U19MN1036</span></div>
-                <div class="name-entry"><span class="name">Kemba Justin</span><span class="matric">U21MN2006</span></div>
-                <div class="name-entry"><span class="name">Abbas Mahmood</span><span class="matric">U19MN1007</span></div>
-                <div class="name-entry"><span class="name">Junaidu Abubakar</span><span class="matric">U21MN2002</span></div>
-                <div class="name-entry"><span class="name">Folorunsho Ibrahim</span><span class="matric">U19MN1027</span></div>
-                <div class="name-entry"><span class="name">Abdulazeez Goga</span><span class="matric">U21MN2004</span></div>
+    <!-- Main Dashboard -->
+    <div class="dashboard-modern">
+      <div class="row g-4">
+        <!-- Left Column: Canvas and Controls -->
+        <div class="col-12 col-lg-8">
+          <!-- Canvas with status -->
+          <div class="canvas-wrapper-modern">
+            <canvas id="canvas"></canvas>
+            <div class="camera-status">
+              <span class="status-dot"></span>
+              <span>LIVE</span>
+            </div>
+          </div>
+
+          <!-- Take Photo Button -->
+          <button class="btn-photo" onclick="takePhoto()">
+            <i class="fas fa-camera"></i>
+            CAPTURE MOMENT
+          </button>
+
+          <!-- Filter Selection -->
+          <div class="control-section">
+            <div class="section-title">
+              <i class="fas fa-magic"></i>
+              <h3>Choose Filter</h3>
+            </div>
+            
+            <div class="filter-grid">
+              <!-- Glasses - Bounty -->
+              <div class="filter-card active" id="filterglasses" onclick="setFilter('glasses')">
+                <div class="filter-emoji">👓</div>
+                <div class="filter-name">GLASSES</div>
+                <span class="filter-matric">U19MN1030</span>
+              </div>
+              
+              <!-- Clownface - Jeffery -->
+              <div class="filter-card" id="filterclownface" onclick="setFilter('clownface')">
+                <div class="filter-emoji">🤡</div>
+                <div class="filter-name">CLOWNFACE</div>
+                <span class="filter-matric">U19MN1020</span>
+              </div>
+              
+              <!-- Hard Hat - Daniel -->
+              <div class="filter-card" id="filterhardhat" onclick="setFilter('hardhat')">
+                <div class="filter-emoji">⛑️</div>
+                <div class="filter-name">HARD HAT</div>
+                <span class="filter-matric">U19MN1013</span>
               </div>
             </div>
-            <div class="note">
-              MCEN521 group 2 members 
+          </div>
+
+          <!-- Fine-tuning Controls -->
+          <div class="control-section">
+            <div class="section-title">
+              <i class="fas fa-sliders-h"></i>
+              <h3>Adjust Filter</h3>
+            </div>
+            
+            <div class="adjustment-panel">
+              <!-- Position Controls -->
+              <div class="adjustment-row mb-3">
+                <button class="btn-adjust" onclick="adjustFilter('up')">
+                  <i class="fas fa-arrow-up"></i> UP
+                </button>
+                <button class="btn-adjust" onclick="adjustFilter('down')">
+                  <i class="fas fa-arrow-down"></i> DOWN
+                </button>
+                <button class="btn-adjust" onclick="adjustFilter('left')">
+                  <i class="fas fa-arrow-left"></i> LEFT
+                </button>
+                <button class="btn-adjust" onclick="adjustFilter('right')">
+                  <i class="fas fa-arrow-right"></i> RIGHT
+                </button>
+              </div>
+              
+              <!-- Size Controls -->
+              <div class="adjustment-row mb-3">
+                <button class="btn-adjust primary" onclick="adjustFilter('bigger')">
+                  <i class="fas fa-expand"></i> BIGGER
+                </button>
+                <button class="btn-adjust primary" onclick="adjustFilter('smaller')">
+                  <i class="fas fa-compress"></i> SMALLER
+                </button>
+              </div>
+              
+              <!-- Stretch Controls -->
+              <div class="adjustment-row">
+                <button class="btn-adjust" onclick="adjustFilter('wider')">
+                  <i class="fas fa-arrows-alt-h"></i> WIDER
+                </button>
+                <button class="btn-adjust" onclick="adjustFilter('narrower')">
+                  <i class="fas fa-arrows-alt-h"></i> NARROWER
+                </button>
+                <button class="btn-adjust" onclick="adjustFilter('taller')">
+                  <i class="fas fa-arrows-alt-v"></i> TALLER
+                </button>
+                <button class="btn-adjust" onclick="adjustFilter('shorter')">
+                  <i class="fas fa-arrows-alt-v"></i> SHORTER
+                </button>
+                <button class="btn-adjust warning" onclick="resetFilterAdjustments()">
+                  <i class="fas fa-undo"></i> RESET
+                </button>
+              </div>
+            </div>
+
+            <!-- Live Adjustment Display -->
+            <div class="adjustment-display-modern">
+              <div class="display-item">
+                <i class="fas fa-arrows-alt"></i>
+                <span id="posX">0</span><small>X</small>
+                <span id="posY">0</span><small>Y</small>
+              </div>
+              <div class="display-item">
+                <i class="fas fa-arrows-alt-h"></i>
+                <span id="scaleW">1.0</span><small>W</small>
+              </div>
+              <div class="display-item">
+                <i class="fas fa-arrows-alt-v"></i>
+                <span id="scaleH">1.0</span><small>H</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hint -->
+          <div class="hint-modern">
+            <i class="fas fa-info-circle"></i>
+            <span>MediaPipe Face Mesh · Real-time AR filters · Group 2 prototype</span>
+          </div>
+        </div>
+
+        <!-- Right Column: Team Panel -->
+        <div class="col-12 col-lg-4">
+          <div class="team-panel">
+            <div class="team-header">
+              <div class="team-title">✦ TEAM 02 ✦</div>
+              <div class="team-subtitle">Mobile Robotics · MCEN521</div>
+              <div class="team-stats">
+                <span class="stat-badge"><i class="fas fa-users"></i> 10 Members</span>
+                <span class="stat-badge"><i class="fas fa-magic"></i> 3 Filters</span>
+              </div>
+            </div>
+
+            <!-- Animated Team Scroll -->
+            <div class="team-scroll-modern">
+              <div class="scroll-content-modern">
+                <!-- First copy -->
+                <div class="team-member-card">
+                  <div class="member-avatar">OG</div>
+                  <div class="member-info">
+                    <div class="member-name">Opeyemi Ganiyu</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1032</span>
+                      <span class="member-filter"><i class="fas fa-star"></i> Lead</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">DE</div>
+                  <div class="member-info">
+                    <div class="member-name">Daniel Elijah</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1013</span>
+                      <span class="member-filter"><i class="fas fa-hard-hat"></i> Hard Hat</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">JE</div>
+                  <div class="member-info">
+                    <div class="member-name">Jeffery Emerson</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1020</span>
+                      <span class="member-filter"><i class="fas fa-face-smile"></i> Clownface</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">BA</div>
+                  <div class="member-info">
+                    <div class="member-name">Bounty Adetula</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1030</span>
+                      <span class="member-filter"><i class="fas fa-glasses"></i> Glasses</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">YM</div>
+                  <div class="member-info">
+                    <div class="member-name">Yusuf Mu'azu</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1036</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">KJ</div>
+                  <div class="member-info">
+                    <div class="member-name">Kemba Justin</div>
+                    <div class="member-details">
+                      <span class="member-matric">U21MN2006</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">AM</div>
+                  <div class="member-info">
+                    <div class="member-name">Abbas Mahmood</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1007</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">JA</div>
+                  <div class="member-info">
+                    <div class="member-name">Junaidu Abubakar</div>
+                    <div class="member-details">
+                      <span class="member-matric">U21MN2002</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">FI</div>
+                  <div class="member-info">
+                    <div class="member-name">Folorunsho Ibrahim</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1027</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">AG</div>
+                  <div class="member-info">
+                    <div class="member-name">Abdulazeez Goga</div>
+                    <div class="member-details">
+                      <span class="member-matric">U21MN2004</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Duplicate for seamless loop -->
+                <div class="team-member-card">
+                  <div class="member-avatar">OG</div>
+                  <div class="member-info">
+                    <div class="member-name">Opeyemi Ganiyu</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1032</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">DE</div>
+                  <div class="member-info">
+                    <div class="member-name">Daniel Elijah</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1013</span>
+                      <span class="member-filter"><i class="fas fa-hard-hat"></i> Hard Hat</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">JE</div>
+                  <div class="member-info">
+                    <div class="member-name">Jeffery Emerson</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1020</span>
+                      <span class="member-filter"><i class="fas fa-face-smile"></i> Clownface</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="team-member-card">
+                  <div class="member-avatar">BA</div>
+                  <div class="member-info">
+                    <div class="member-name">Bounty Adetula</div>
+                    <div class="member-details">
+                      <span class="member-matric">U19MN1030</span>
+                      <span class="member-filter"><i class="fas fa-glasses"></i> Glasses</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Note -->
+            <div class="note-modern" style="margin-top: 20px; text-align: center; font-size: 12px; color: var(--light-2); opacity: 0.6; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 16px;">
+              <i class="fas fa-heart" style="color: var(--secondary);"></i> MCEN521 Group 2 · Prof. Alim Sabur
             </div>
           </div>
         </div>
@@ -422,11 +1032,41 @@
     </div>
   </div>
 
-  <!-- Hidden video element - with required attributes -->
-<video id="video" style="display:none;" autoplay playsinline></video>
+  <!-- Hidden video element -->
+  <video id="video" style="display:none;" autoplay playsinline></video>
+
+  <!-- Update script to work with new display elements -->
+  <script>
+    // Override the updateAdjustmentDisplay function to work with new elements
+    function updateAdjustmentDisplay() {
+      const posX = document.getElementById('posX');
+      const posY = document.getElementById('posY');
+      const scaleW = document.getElementById('scaleW');
+      const scaleH = document.getElementById('scaleH');
+      
+      if (posX) posX.textContent = filterOffsetX;
+      if (posY) posY.textContent = filterOffsetY;
+      if (scaleW) scaleW.textContent = filterScaleX.toFixed(1);
+      if (scaleH) scaleH.textContent = filterScaleY.toFixed(1);
+    }
+
+    // Add active class management for filter cards
+    const originalSetFilter = setFilter;
+    setFilter = function(filter) {
+      originalSetFilter(filter);
+      
+      // Update active class on filter cards
+      document.querySelectorAll('.filter-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      
+      const activeCard = document.getElementById('filter' + filter);
+      if (activeCard) {
+        activeCard.classList.add('active');
+      }
+    };
+  </script>
 
   <script src="script.js"></script>
-  
-
 </body>
 </html>
