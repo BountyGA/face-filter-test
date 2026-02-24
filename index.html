@@ -2,20 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FILTR · augmented face filters</title>
-  <!-- Bootstrap 5 CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FILTR · mobile filters</title>
+  <!-- Bootstrap 5 CSS (minimal, just for grid) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- MediaPipe libraries -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-  <!-- Google Fonts - Modern pairing -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* CSS Variables for easy theming */
+    /* Mobile-first variables */
     :root {
       --primary: #6366f1;
       --primary-dark: #4f46e5;
@@ -31,178 +31,100 @@
       --warning: #f59e0b;
       --gradient-1: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
       --gradient-2: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
-      --gradient-3: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
-      --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-      --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.5);
+      --safe-bottom: env(safe-area-inset-bottom, 16px);
     }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background: var(--dark-1);
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
-      padding: 20px;
+      min-height: -webkit-fill-available;
       color: var(--light-1);
-      background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 30%),
-                        radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 30%);
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      padding: 0;
     }
 
-    /* Main container */
-    .app-container {
-      max-width: 1600px;
-      margin: 0 auto;
+    /* Main app container - full screen */
+    .app-mobile {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--dark-1);
     }
 
-    /* Header with animated gradient */
-    .app-header {
-      margin-bottom: 24px;
-      padding: 0 8px;
-    }
-
-    .header-content {
+    /* Header - minimal for mobile */
+    .mobile-header {
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      z-index: 20;
     }
 
-    .logo {
+    .logo-small {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
     }
 
-    .logo-icon {
-      width: 48px;
-      height: 48px;
+    .logo-icon-small {
+      width: 36px;
+      height: 36px;
       background: var(--gradient-1);
-      border-radius: 16px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 18px;
       color: white;
-      box-shadow: var(--shadow-md);
-      transform: rotate(0deg);
-      transition: transform 0.3s ease;
     }
 
-    .logo-icon:hover {
-      transform: rotate(10deg) scale(1.1);
-    }
-
-    .logo-text h1 {
-      font-size: 28px;
-      font-weight: 800;
-      background: var(--gradient-1);
+    .logo-text-small h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+      background: linear-gradient(135deg, #fff, #94a3b8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 0;
-      letter-spacing: -0.5px;
     }
 
-    .logo-text p {
-      font-size: 14px;
-      color: var(--light-2);
-      opacity: 0.8;
-      margin: 0;
-      font-weight: 400;
-    }
-
-    .group-badge-modern {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(99, 102, 241, 0.3);
+    .live-badge {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.3);
       border-radius: 100px;
-      padding: 8px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .badge-pill {
-      background: var(--gradient-2);
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-weight: 600;
-      font-size: 14px;
-      color: white;
-    }
-
-    .badge-text {
-      font-weight: 500;
-      font-size: 14px;
-      color: var(--light-2);
-    }
-
-    /* Main card */
-    .dashboard-modern {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 32px;
-      padding: 24px;
-      box-shadow: var(--shadow-lg);
-    }
-
-    /* Canvas wrapper with enhanced styling */
-    .canvas-wrapper-modern {
-      position: relative;
-      border-radius: 24px;
-      overflow: hidden;
-      aspect-ratio: 4/3;
-      background: var(--dark-2);
-      border: 2px solid rgba(99, 102, 241, 0.3);
-      box-shadow: var(--shadow-lg);
-      transition: all 0.3s ease;
-    }
-
-    .canvas-wrapper-modern:hover {
-      border-color: var(--primary);
-      box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
-    }
-
-    #canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1);
-    }
-
-    /* Camera overlay indicator */
-    .camera-status {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      padding: 6px 12px;
-      border-radius: 100px;
+      padding: 4px 10px;
       font-size: 12px;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      z-index: 10;
+      color: var(--success);
     }
 
-    .status-dot {
+    .live-dot {
       width: 8px;
       height: 8px;
       background: var(--success);
       border-radius: 50%;
-      animation: pulse 2s infinite;
+      animation: pulse 1.5s infinite;
     }
 
     @keyframes pulse {
@@ -211,823 +133,605 @@
       100% { opacity: 1; transform: scale(1); }
     }
 
-    /* Control sections */
-    .control-section {
-      background: rgba(15, 23, 42, 0.5);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      margin-top: 20px;
-    }
-
-    .section-title {
+    /* Camera container - takes most of the screen */
+    .camera-container {
+      flex: 1;
+      position: relative;
+      background: var(--dark-2);
+      overflow: hidden;
       display: flex;
       align-items: center;
+      justify-content: center;
+    }
+
+    #canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    /* Floating action panel - bottom sheet style */
+    .action-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 24px 24px 0 0;
+      padding: 16px 16px max(16px, var(--safe-bottom));
+      z-index: 30;
+      transition: transform 0.3s ease;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Pull indicator for bottom sheet */
+    .pull-indicator {
+      width: 40px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      margin: 0 auto 12px;
+    }
+
+    /* Filter chips - horizontal scroll */
+    .filter-section {
+      margin-bottom: 16px;
+    }
+
+    .filter-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--light-2);
+      margin-bottom: 12px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-section-title i {
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 4px 0 8px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .filter-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(5px);
+    }
+
+    .filter-chip.active {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .chip-emoji {
+      font-size: 20px;
+    }
+
+    .chip-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .chip-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: white;
+    }
+
+    .chip-matric {
+      font-size: 10px;
+      color: var(--primary-light);
+      font-weight: 500;
+    }
+
+    /* Adjustment controls - compact grid */
+    .adjustment-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       margin-bottom: 16px;
     }
 
-    .section-title i {
-      font-size: 20px;
-      color: var(--primary);
-    }
-
-    .section-title h3 {
-      font-size: 16px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--light-2);
-      margin: 0;
-    }
-
-    /* Filter buttons - modern redesign */
-    .filter-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-    }
-
-    .filter-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
-      padding: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .filter-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--gradient-1);
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-    }
-
-    .filter-card:hover {
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateY(-2px);
-      border-color: var(--primary);
-    }
-
-    .filter-card.active {
-      background: rgba(99, 102, 241, 0.15);
-      border-color: var(--primary);
-      box-shadow: var(--shadow-glow);
-    }
-
-    .filter-card.active::before {
-      transform: translateX(0);
-    }
-
-    .filter-emoji {
-      font-size: 32px;
-      margin-bottom: 8px;
-      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
-    }
-
-    .filter-name {
-      font-weight: 700;
-      font-size: 16px;
-      margin-bottom: 4px;
-      background: linear-gradient(135deg, #fff, #94a3b8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .filter-matric {
-      font-family: 'Plus Jakarta Sans', monospace;
-      font-size: 12px;
-      font-weight: 600;
-      background: rgba(99, 102, 241, 0.3);
-      padding: 4px 8px;
-      border-radius: 100px;
-      display: inline-block;
-      color: var(--primary-light);
-      letter-spacing: 0.5px;
-    }
-
-    /* Adjustment controls - modern redesign */
-    .adjustment-panel {
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 20px;
-      padding: 16px;
-      margin: 20px 0;
-    }
-
-    .adjustment-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-    }
-
-    .btn-adjust {
+    .adj-btn {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 14px;
-      padding: 12px 16px;
-      color: white;
-      font-weight: 500;
-      font-size: 14px;
-      display: inline-flex;
+      padding: 12px 0;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 4px;
+      color: white;
+      font-size: 12px;
+      font-weight: 500;
       transition: all 0.2s ease;
-      min-width: 80px;
-      justify-content: center;
       backdrop-filter: blur(5px);
     }
 
-    .btn-adjust i {
-      font-size: 16px;
+    .adj-btn i {
+      font-size: 18px;
+      color: var(--primary-light);
     }
 
-    .btn-adjust:hover {
-      background: rgba(99, 102, 241, 0.2);
-      border-color: var(--primary);
-      transform: scale(1.05);
+    .adj-btn:active {
+      background: rgba(99, 102, 241, 0.3);
+      transform: scale(0.95);
     }
 
-    .btn-adjust.primary {
+    .adj-btn.wide {
+      grid-column: span 2;
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .adj-btn.primary {
       background: var(--gradient-1);
       border: none;
-      box-shadow: var(--shadow-sm);
     }
 
-    .btn-adjust.primary:hover {
-      box-shadow: var(--shadow-glow);
-      transform: scale(1.05);
+    .adj-btn.primary i {
+      color: white;
     }
 
-    .btn-adjust.warning {
-      background: rgba(245, 158, 11, 0.2);
+    .adj-btn.warning {
+      background: rgba(245, 158, 11, 0.15);
       border-color: var(--warning);
     }
 
-    .btn-adjust.warning:hover {
-      background: rgba(245, 158, 11, 0.3);
+    .adj-btn.warning i {
+      color: var(--warning);
     }
 
-    /* Adjustment display */
-    .adjustment-display-modern {
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      border-radius: 100px;
-      padding: 12px 24px;
-      display: inline-flex;
+    /* Live adjustment display */
+    .live-display {
+      display: flex;
       align-items: center;
-      gap: 24px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 100px;
+      padding: 8px 16px;
+      margin: 8px 0;
+      border: 1px solid rgba(99, 102, 241, 0.2);
     }
 
     .display-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 14px;
+      gap: 6px;
+      font-size: 13px;
     }
 
     .display-item i {
       color: var(--primary);
-      font-size: 16px;
-    }
-
-    .display-item span {
-      font-weight: 600;
-      color: white;
-    }
-
-    .display-item small {
-      color: var(--light-2);
-      font-weight: 400;
-    }
-
-    /* Right panel - team marquee redesign */
-    .team-panel {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 28px;
-      padding: 24px 16px;
-      height: 100%;
-      min-height: 650px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .team-panel::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--gradient-2);
-    }
-
-    .team-header {
-      text-align: center;
-      margin-bottom: 24px;
-      position: relative;
-    }
-
-    .team-title {
-      font-size: 24px;
-      font-weight: 800;
-      background: var(--gradient-2);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 4px;
-    }
-
-    .team-subtitle {
       font-size: 14px;
-      color: var(--light-2);
-      opacity: 0.7;
     }
 
-    .team-stats {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin-top: 16px;
-    }
-
-    .stat-badge {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 6px 16px;
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    .stat-badge i {
-      color: var(--accent);
-      margin-right: 6px;
-    }
-
-    /* Enhanced scroll container */
-    .team-scroll-modern {
-      flex: 1;
-      overflow-y: hidden;
-      position: relative;
-      mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
-      -webkit-mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
-      padding: 8px 0;
-    }
-
-    .scroll-content-modern {
-      animation: scrollTeam 25s linear infinite;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    @keyframes scrollTeam {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-50%); }
-    }
-
-    .team-member-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 18px;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(5px);
-    }
-
-    .team-member-card:hover {
-      background: rgba(99, 102, 241, 0.1);
-      border-color: var(--primary);
-      transform: translateX(5px);
-    }
-
-    .member-avatar {
-      width: 48px;
-      height: 48px;
-      background: var(--gradient-1);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .display-value {
       font-weight: 700;
-      font-size: 18px;
       color: white;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .member-info {
-      flex: 1;
-    }
-
-    .member-name {
-      font-weight: 700;
-      font-size: 16px;
-      margin-bottom: 4px;
-      color: white;
-    }
-
-    .member-details {
-      display: flex;
-      gap: 12px;
-      font-size: 12px;
-    }
-
-    .member-matric {
-      background: rgba(20, 184, 166, 0.2);
+      background: rgba(255, 255, 255, 0.1);
       padding: 2px 8px;
       border-radius: 100px;
-      color: var(--accent);
-      font-family: monospace;
-      font-weight: 600;
     }
 
-    .member-filter {
-      color: var(--light-2);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .member-filter i {
-      font-size: 10px;
-      color: var(--primary);
-    }
-
-    /* Take photo button - special styling */
-    .btn-photo {
-      background: var(--gradient-3);
+    /* Capture button */
+    .capture-btn {
+      background: var(--gradient-2);
       border: none;
-      border-radius: 18px;
+      border-radius: 100px;
       padding: 16px;
       font-weight: 700;
-      font-size: 18px;
-      letter-spacing: 1px;
+      font-size: 16px;
       color: white;
-      width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
-      box-shadow: var(--shadow-md);
-      transition: all 0.3s ease;
-      margin-bottom: 16px;
+      width: 100%;
+      margin: 8px 0;
+      box-shadow: 0 4px 20px rgba(20, 184, 166, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .btn-photo:hover {
-      transform: scale(1.02);
-      box-shadow: var(--shadow-glow);
-    }
-
-    .btn-photo i {
+    .capture-btn i {
       font-size: 20px;
     }
 
-    /* Footer hint */
-    .hint-modern {
+    .capture-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Team drawer - slide up panel */
+    .team-drawer {
+      margin-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 12px;
+    }
+
+    .team-drawer-header {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 13px;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .team-drawer-title {
+      font-size: 14px;
+      font-weight: 600;
       color: var(--light-2);
-      background: rgba(255, 255, 255, 0.02);
-      padding: 12px 16px;
-      border-radius: 100px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .hint-modern i {
-      color: var(--primary);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 992px) {
-      .team-panel {
-        min-height: 400px;
-        margin-top: 20px;
-      }
-      
-      .filter-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      .adjustment-row {
-        gap: 8px;
-      }
-      
-      .btn-adjust {
-        padding: 10px 12px;
-        min-width: 70px;
-        font-size: 13px;
-      }
-    }
-
-    @media (max-width: 576px) {
-      body {
-        padding: 12px;
-      }
-      
-      .dashboard-modern {
-        padding: 16px;
-      }
-      
-      .logo-text h1 {
-        font-size: 22px;
-      }
-      
-      .group-badge-modern {
-        padding: 6px 12px;
-      }
-      
-      .filter-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .btn-adjust {
-        width: 100%;
-      }
-      
-      .adjustment-display-modern {
-        flex-direction: column;
-        gap: 12px;
-        width: 100%;
-        border-radius: 20px;
-      }
-    }
-
-    /* Loading animation */
-    .loading-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(15, 23, 42, 0.9);
       display: flex;
       align-items: center;
-      justify-content: center;
-      z-index: 20;
-      border-radius: 24px;
+      gap: 6px;
+    }
+
+    .team-scroll-horizontal {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 4px 0 12px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .team-scroll-horizontal::-webkit-scrollbar {
+      display: none;
+    }
+
+    .team-mini-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 140px;
       backdrop-filter: blur(5px);
     }
 
-    .loader {
-      width: 48px;
-      height: 48px;
-      border: 3px solid rgba(99, 102, 241, 0.3);
-      border-radius: 50%;
-      border-top-color: var(--primary);
-      animation: spin 1s ease-in-out infinite;
+    .mini-avatar {
+      width: 36px;
+      height: 36px;
+      background: var(--gradient-1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: white;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .mini-info {
+      flex: 1;
+    }
+
+    .mini-name {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    .mini-matric {
+      font-size: 10px;
+      color: var(--primary-light);
+    }
+
+    .filter-tag {
+      font-size: 10px;
+      background: rgba(99, 102, 241, 0.2);
+      padding: 2px 6px;
+      border-radius: 100px;
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    /* Collapsible panel state */
+    .action-panel.collapsed {
+      transform: translateY(calc(100% - 80px));
+    }
+
+    /* Landscape orientation */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .action-panel {
+        padding: 8px 16px max(8px, var(--safe-bottom));
+      }
+      
+      .adjustment-grid {
+        grid-template-columns: repeat(8, 1fr);
+      }
+      
+      .filter-chips {
+        margin-bottom: 4px;
+      }
+    }
+
+    /* Pull to expand hint */
+    .expand-hint {
+      text-align: center;
+      font-size: 10px;
+      color: var(--light-2);
+      opacity: 0.5;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Header -->
-    <div class="app-header">
-      <div class="header-content">
-        <div class="logo">
-          <div class="logo-icon">
-            <i class="fas fa-camera-retro"></i>
-          </div>
-          <div class="logo-text">
-            <h1>FILTR</h1>
-            <p>augmented face filters</p>
-          </div>
+  <div class="app-mobile">
+    <!-- Minimal Header -->
+    <div class="mobile-header">
+      <div class="logo-small">
+        <div class="logo-icon-small">
+          <i class="fas fa-camera-retro"></i>
         </div>
-        <div class="group-badge-modern">
-          <span class="badge-pill">GROUP 02</span>
-          <span class="badge-text">MCEN521 · Mobile Robotics</span>
+        <div class="logo-text-small">
+          <h1>FILTR</h1>
         </div>
+      </div>
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        <span>LIVE</span>
       </div>
     </div>
 
-    <!-- Main Dashboard -->
-    <div class="dashboard-modern">
-      <div class="row g-4">
-        <!-- Left Column: Canvas and Controls -->
-        <div class="col-12 col-lg-8">
-          <!-- Canvas with status -->
-          <div class="canvas-wrapper-modern">
-            <canvas id="canvas"></canvas>
-            <div class="camera-status">
-              <span class="status-dot"></span>
-              <span>LIVE</span>
-            </div>
-          </div>
+    <!-- Camera View (Always Visible) -->
+    <div class="camera-container">
+      <canvas id="canvas"></canvas>
+    </div>
 
-          <!-- Take Photo Button -->
-          <button class="btn-photo" onclick="takePhoto()">
-            <i class="fas fa-camera"></i>
-            CAPTURE MOMENT
-          </button>
-
-          <!-- Filter Selection -->
-          <div class="control-section">
-            <div class="section-title">
-              <i class="fas fa-magic"></i>
-              <h3>Choose Filter</h3>
-            </div>
-            
-            <div class="filter-grid">
-              <!-- Glasses - Bounty -->
-              <div class="filter-card active" id="filterglasses" onclick="setFilter('glasses')">
-                <div class="filter-emoji">👓</div>
-                <div class="filter-name">GLASSES</div>
-                <span class="filter-matric">U19MN1030</span>
-              </div>
-              
-              <!-- Clownface - Jeffery -->
-              <div class="filter-card" id="filterclownface" onclick="setFilter('clownface')">
-                <div class="filter-emoji">🤡</div>
-                <div class="filter-name">CLOWNFACE</div>
-                <span class="filter-matric">U19MN1020</span>
-              </div>
-              
-              <!-- Hard Hat - Daniel -->
-              <div class="filter-card" id="filterhardhat" onclick="setFilter('hardhat')">
-                <div class="filter-emoji">⛑️</div>
-                <div class="filter-name">HARD HAT</div>
-                <span class="filter-matric">U19MN1013</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Fine-tuning Controls -->
-          <div class="control-section">
-            <div class="section-title">
-              <i class="fas fa-sliders-h"></i>
-              <h3>Adjust Filter</h3>
-            </div>
-            
-            <div class="adjustment-panel">
-              <!-- Position Controls -->
-              <div class="adjustment-row mb-3">
-                <button class="btn-adjust" onclick="adjustFilter('up')">
-                  <i class="fas fa-arrow-up"></i> UP
-                </button>
-                <button class="btn-adjust" onclick="adjustFilter('down')">
-                  <i class="fas fa-arrow-down"></i> DOWN
-                </button>
-                <button class="btn-adjust" onclick="adjustFilter('left')">
-                  <i class="fas fa-arrow-left"></i> LEFT
-                </button>
-                <button class="btn-adjust" onclick="adjustFilter('right')">
-                  <i class="fas fa-arrow-right"></i> RIGHT
-                </button>
-              </div>
-              
-              <!-- Size Controls -->
-              <div class="adjustment-row mb-3">
-                <button class="btn-adjust primary" onclick="adjustFilter('bigger')">
-                  <i class="fas fa-expand"></i> BIGGER
-                </button>
-                <button class="btn-adjust primary" onclick="adjustFilter('smaller')">
-                  <i class="fas fa-compress"></i> SMALLER
-                </button>
-              </div>
-              
-              <!-- Stretch Controls -->
-              <div class="adjustment-row">
-                <button class="btn-adjust" onclick="adjustFilter('wider')">
-                  <i class="fas fa-arrows-alt-h"></i> WIDER
-                </button>
-                <button class="btn-adjust" onclick="adjustFilter('narrower')">
-                  <i class="fas fa-arrows-alt-h"></i> NARROWER
-                </button>
-                <button class="btn-adjust" onclick="adjustFilter('taller')">
-                  <i class="fas fa-arrows-alt-v"></i> TALLER
-                </button>
-                <button class="btn-adjust" onclick="adjustFilter('shorter')">
-                  <i class="fas fa-arrows-alt-v"></i> SHORTER
-                </button>
-                <button class="btn-adjust warning" onclick="resetFilterAdjustments()">
-                  <i class="fas fa-undo"></i> RESET
-                </button>
-              </div>
-            </div>
-
-            <!-- Live Adjustment Display -->
-            <div class="adjustment-display-modern">
-              <div class="display-item">
-                <i class="fas fa-arrows-alt"></i>
-                <span id="posX">0</span><small>X</small>
-                <span id="posY">0</span><small>Y</small>
-              </div>
-              <div class="display-item">
-                <i class="fas fa-arrows-alt-h"></i>
-                <span id="scaleW">1.0</span><small>W</small>
-              </div>
-              <div class="display-item">
-                <i class="fas fa-arrows-alt-v"></i>
-                <span id="scaleH">1.0</span><small>H</small>
-              </div>
-            </div>
-          </div>
-
-          <!-- Hint -->
-          <div class="hint-modern">
-            <i class="fas fa-info-circle"></i>
-            <span>MediaPipe Face Mesh · Real-time AR filters · Group 2 prototype</span>
-          </div>
+    <!-- Bottom Action Panel (Always visible, partially collapsed by default) -->
+    <div class="action-panel" id="actionPanel">
+      <!-- Pull indicator -->
+      <div class="pull-indicator" id="pullIndicator"></div>
+      
+      <!-- Quick Filters (Always visible) -->
+      <div class="filter-section">
+        <div class="filter-section-title">
+          <i class="fas fa-magic"></i>
+          <span>FILTERS · tap to change</span>
         </div>
-
-        <!-- Right Column: Team Panel -->
-        <div class="col-12 col-lg-4">
-          <div class="team-panel">
-            <div class="team-header">
-              <div class="team-title">✦ TEAM 02 ✦</div>
-              <div class="team-subtitle">Mobile Robotics · MCEN521</div>
-              <div class="team-stats">
-                <span class="stat-badge"><i class="fas fa-users"></i> 10 Members</span>
-                <span class="stat-badge"><i class="fas fa-magic"></i> 3 Filters</span>
-              </div>
+        <div class="filter-chips">
+          <!-- Glasses - Bounty -->
+          <div class="filter-chip active" id="filterglasses" onclick="setFilter('glasses')">
+            <span class="chip-emoji">👓</span>
+            <div class="chip-info">
+              <span class="chip-name">GLASSES</span>
+              <span class="chip-matric">U19MN1030</span>
             </div>
-
-            <!-- Animated Team Scroll -->
-            <div class="team-scroll-modern">
-              <div class="scroll-content-modern">
-                <!-- First copy -->
-                <div class="team-member-card">
-                  <div class="member-avatar">OG</div>
-                  <div class="member-info">
-                    <div class="member-name">Opeyemi Ganiyu</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1032</span>
-                      <span class="member-filter"><i class="fas fa-star"></i> Lead</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">DE</div>
-                  <div class="member-info">
-                    <div class="member-name">Daniel Elijah</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1013</span>
-                      <span class="member-filter"><i class="fas fa-hard-hat"></i> Hard Hat</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">JE</div>
-                  <div class="member-info">
-                    <div class="member-name">Jeffery Emerson</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1020</span>
-                      <span class="member-filter"><i class="fas fa-face-smile"></i> Clownface</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">BA</div>
-                  <div class="member-info">
-                    <div class="member-name">Bounty Adetula</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1030</span>
-                      <span class="member-filter"><i class="fas fa-glasses"></i> Glasses</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">YM</div>
-                  <div class="member-info">
-                    <div class="member-name">Yusuf Mu'azu</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1036</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">KJ</div>
-                  <div class="member-info">
-                    <div class="member-name">Kemba Justin</div>
-                    <div class="member-details">
-                      <span class="member-matric">U21MN2006</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">AM</div>
-                  <div class="member-info">
-                    <div class="member-name">Abbas Mahmood</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1007</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">JA</div>
-                  <div class="member-info">
-                    <div class="member-name">Junaidu Abubakar</div>
-                    <div class="member-details">
-                      <span class="member-matric">U21MN2002</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">FI</div>
-                  <div class="member-info">
-                    <div class="member-name">Folorunsho Ibrahim</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1027</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">AG</div>
-                  <div class="member-info">
-                    <div class="member-name">Abdulazeez Goga</div>
-                    <div class="member-details">
-                      <span class="member-matric">U21MN2004</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Duplicate for seamless loop -->
-                <div class="team-member-card">
-                  <div class="member-avatar">OG</div>
-                  <div class="member-info">
-                    <div class="member-name">Opeyemi Ganiyu</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1032</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">DE</div>
-                  <div class="member-info">
-                    <div class="member-name">Daniel Elijah</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1013</span>
-                      <span class="member-filter"><i class="fas fa-hard-hat"></i> Hard Hat</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">JE</div>
-                  <div class="member-info">
-                    <div class="member-name">Jeffery Emerson</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1020</span>
-                      <span class="member-filter"><i class="fas fa-face-smile"></i> Clownface</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="team-member-card">
-                  <div class="member-avatar">BA</div>
-                  <div class="member-info">
-                    <div class="member-name">Bounty Adetula</div>
-                    <div class="member-details">
-                      <span class="member-matric">U19MN1030</span>
-                      <span class="member-filter"><i class="fas fa-glasses"></i> Glasses</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          </div>
+          
+          <!-- Clownface - Jeffery -->
+          <div class="filter-chip" id="filterclownface" onclick="setFilter('clownface')">
+            <span class="chip-emoji">🤡</span>
+            <div class="chip-info">
+              <span class="chip-name">CLOWNFACE</span>
+              <span class="chip-matric">U19MN1020</span>
             </div>
-
-            <!-- Footer Note -->
-            <div class="note-modern" style="margin-top: 20px; text-align: center; font-size: 12px; color: var(--light-2); opacity: 0.6; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 16px;">
-              <i class="fas fa-heart" style="color: var(--secondary);"></i> MCEN521 Group 2 · Prof. Alim Sabur
+          </div>
+          
+          <!-- Hard Hat - Daniel -->
+          <div class="filter-chip" id="filterhardhat" onclick="setFilter('hardhat')">
+            <span class="chip-emoji">⛑️</span>
+            <div class="chip-info">
+              <span class="chip-name">HARD HAT</span>
+              <span class="chip-matric">U19MN1013</span>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Adjustment Controls (Always visible, compact) -->
+      <div class="adjustment-grid">
+        <button class="adj-btn" onclick="adjustFilter('up')">
+          <i class="fas fa-arrow-up"></i>
+          <span>UP</span>
+        </button>
+        <button class="adj-btn" onclick="adjustFilter('down')">
+          <i class="fas fa-arrow-down"></i>
+          <span>DOWN</span>
+        </button>
+        <button class="adj-btn" onclick="adjustFilter('left')">
+          <i class="fas fa-arrow-left"></i>
+          <span>LEFT</span>
+        </button>
+        <button class="adj-btn" onclick="adjustFilter('right')">
+          <i class="fas fa-arrow-right"></i>
+          <span>RIGHT</span>
+        </button>
+        
+        <button class="adj-btn" onclick="adjustFilter('bigger')">
+          <i class="fas fa-expand"></i>
+          <span>BIG</span>
+        </button>
+        <button class="adj-btn" onclick="adjustFilter('smaller')">
+          <i class="fas fa-compress"></i>
+          <span>SMALL</span>
+        </button>
+        
+        <button class="adj-btn" onclick="adjustFilter('wider')">
+          <i class="fas fa-arrows-alt-h"></i>
+          <span>↔️</span>
+        </button>
+        <button class="adj-btn" onclick="adjustFilter('narrower')">
+          <i class="fas fa-arrows-alt-h"></i>
+          <span>→←</span>
+        </button>
+        
+        <button class="adj-btn" onclick="adjustFilter('taller')">
+          <i class="fas fa-arrows-alt-v"></i>
+          <span>↕️</span>
+        </button>
+        <button class="adj-btn" onclick="adjustFilter('shorter')">
+          <i class="fas fa-arrows-alt-v"></i>
+          <span>↑↓</span>
+        </button>
+        
+        <button class="adj-btn wide warning" onclick="resetFilterAdjustments()">
+          <i class="fas fa-undo"></i>
+          <span>RESET</span>
+        </button>
+        
+        <button class="adj-btn wide primary" onclick="document.querySelector('.action-panel').classList.toggle('collapsed')">
+          <i class="fas fa-chevron-up"></i>
+          <span>MORE</span>
+        </button>
+      </div>
+
+      <!-- Live Adjustment Display -->
+      <div class="live-display">
+        <div class="display-item">
+          <i class="fas fa-arrows-alt"></i>
+          <span class="display-value" id="posX">0</span>
+          <span>X</span>
+          <span class="display-value" id="posY">0</span>
+          <span>Y</span>
+        </div>
+        <div class="display-item">
+          <i class="fas fa-arrows-alt-h"></i>
+          <span class="display-value" id="scaleW">1.0</span>
+          <span>W</span>
+        </div>
+        <div class="display-item">
+          <i class="fas fa-arrows-alt-v"></i>
+          <span class="display-value" id="scaleH">1.0</span>
+          <span>H</span>
+        </div>
+      </div>
+
+      <!-- Capture Button -->
+      <button class="capture-btn" onclick="takePhoto()">
+        <i class="fas fa-camera"></i>
+        CAPTURE PHOTO
+      </button>
+
+      <!-- Team Members (Horizontal Scroll) -->
+      <div class="team-drawer">
+        <div class="team-drawer-header">
+          <div class="team-drawer-title">
+            <i class="fas fa-users"></i>
+            <span>TEAM 02 · MCEN521</span>
+          </div>
+          <span class="filter-tag">Prof. Alim Sabur</span>
+        </div>
+        
+        <div class="team-scroll-horizontal">
+          <!-- Team Members -->
+          <div class="team-mini-card">
+            <div class="mini-avatar">OG</div>
+            <div class="mini-info">
+              <div class="mini-name">Opeyemi G.</div>
+              <div class="mini-matric">U19MN1032</div>
+            </div>
+          </div>
+          
+          <div class="team-mini-card" style="border-left-color: var(--secondary);">
+            <div class="mini-avatar">DE</div>
+            <div class="mini-info">
+              <div class="mini-name">Daniel E.</div>
+              <div class="mini-matric">U19MN1013</div>
+              <span class="filter-tag">⛑️</span>
+            </div>
+          </div>
+          
+          <div class="team-mini-card">
+            <div class="mini-avatar">JE</div>
+            <div class="mini-info">
+              <div class="mini-name">Jeffery E.</div>
+              <div class="mini-matric">U19MN1020</div>
+              <span class="filter-tag">🤡</span>
+            </div>
+          </div>
+          
+          <div class="team-mini-card">
+            <div class="mini-avatar">BA</div>
+            <div class="mini-info">
+              <div class="mini-name">Bounty A.</div>
+              <div class="mini-matric">U19MN1030</div>
+              <span class="filter-tag">👓</span>
+            </div>
+          </div>
+          
+          <div class="team-mini-card">
+            <div class="mini-avatar">YM</div>
+            <div class="mini-info">
+              <div class="mini-name">Yusuf M.</div>
+              <div class="mini-matric">U19MN1036</div>
+            </div>
+          </div>
+          
+          <div class="team-mini-card">
+            <div class="mini-avatar">KJ</div>
+            <div class="mini-info">
+              <div class="mini-name">Kemba J.</div>
+              <div class="mini-matric">U21MN2006</div>
+            </div>
+          </div>
+          
+          <div class="team-mini-card">
+            <div class="mini-avatar">AM</div>
+            <div class="mini-info">
+              <div class="mini-name">Abbas M.</div>
+              <div class="mini-matric">U19MN1007</div>
+            </div>
+          </div>
+          
+          <div class="team-mini-card">
+            <div class="mini-avatar">JA</div>
+            <div class="mini-info">
+              <div class="mini-name">Junaidu A.</div>
+              <div class="mini-matric">U21MN2002</div>
+            </div>
+          </div>
+          
+          <div class="team-mini-card">
+            <div class="mini-avatar">FI</div>
+            <div class="mini-info">
+              <div class="mini-name">Folorunsho I.</div>
+              <div class="mini-matric">U19MN1027</div>
+            </div>
+          </div>
+          
+          <div class="team-mini-card">
+            <div class="mini-avatar">AG</div>
+            <div class="mini-info">
+              <div class="mini-name">Abdulazeez G.</div>
+              <div class="mini-matric">U21MN2004</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Expand hint -->
+      <div class="expand-hint">
+        <i class="fas fa-chevron-up"></i> swipe up for more controls
       </div>
     </div>
   </div>
@@ -1035,9 +739,8 @@
   <!-- Hidden video element -->
   <video id="video" style="display:none;" autoplay playsinline></video>
 
-  <!-- Update script to work with new display elements -->
   <script>
-    // Override the updateAdjustmentDisplay function to work with new elements
+    // Update display function
     function updateAdjustmentDisplay() {
       const posX = document.getElementById('posX');
       const posY = document.getElementById('posY');
@@ -1050,21 +753,44 @@
       if (scaleH) scaleH.textContent = filterScaleY.toFixed(1);
     }
 
-    // Add active class management for filter cards
+    // Override setFilter to update active chip
     const originalSetFilter = setFilter;
     setFilter = function(filter) {
       originalSetFilter(filter);
       
-      // Update active class on filter cards
-      document.querySelectorAll('.filter-card').forEach(card => {
-        card.classList.remove('active');
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.classList.remove('active');
       });
       
-      const activeCard = document.getElementById('filter' + filter);
-      if (activeCard) {
-        activeCard.classList.add('active');
+      const activeChip = document.getElementById('filter' + filter);
+      if (activeChip) {
+        activeChip.classList.add('active');
       }
     };
+
+    // Pull to expand/collapse (touch gesture)
+    let startY = 0;
+    const panel = document.getElementById('actionPanel');
+    const indicator = document.getElementById('pullIndicator');
+    
+    indicator.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+    });
+    
+    indicator.addEventListener('touchmove', (e) => {
+      if (!startY) return;
+      const deltaY = e.touches[0].clientY - startY;
+      
+      if (deltaY < -30) {
+        panel.classList.remove('collapsed');
+      } else if (deltaY > 30) {
+        panel.classList.add('collapsed');
+      }
+    });
+    
+    indicator.addEventListener('touchend', () => {
+      startY = 0;
+    });
   </script>
 
   <script src="script.js"></script>
