@@ -32,6 +32,10 @@
       --gradient-1: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
       --gradient-2: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
       --safe-bottom: env(safe-area-inset-bottom, 16px);
+      
+      /* Panel height states */
+      --panel-collapsed: 90px;
+      --panel-expanded: 55vh;
     }
 
     * {
@@ -133,7 +137,7 @@
       100% { opacity: 1; transform: scale(1); }
     }
 
-    /* Camera container - takes most of the screen */
+    /* Camera container - takes remaining space */
     .camera-container {
       flex: 1;
       position: relative;
@@ -151,51 +155,102 @@
       transform: scaleX(-1);
     }
 
-    /* Floating action panel - bottom sheet style */
-    .action-panel {
+    /* Overlay Control Panel - Slides over camera */
+    .control-overlay {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      background: linear-gradient(to top, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+      height: var(--panel-collapsed);
+      transition: height 0.3s ease-out;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .control-overlay.expanded {
+      height: var(--panel-expanded);
+    }
+
+    /* Panel Header - Always visible, tap to expand/collapse */
+    .panel-header {
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.95));
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-top: 1px solid rgba(99, 102, 241, 0.3);
       border-radius: 24px 24px 0 0;
-      padding: 16px 16px max(16px, var(--safe-bottom));
-      z-index: 30;
-      transition: transform 0.3s ease;
-      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+      padding: 12px 16px;
+      cursor: pointer;
+      box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
     }
 
-    /* Pull indicator for bottom sheet */
+    .panel-header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--light-2);
+    }
+
+    .panel-title i {
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    .panel-arrow {
+      color: var(--primary);
+      font-size: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .expanded .panel-arrow {
+      transform: rotate(180deg);
+    }
+
+    /* Pull indicator for extra visual cue */
     .pull-indicator {
       width: 40px;
       height: 4px;
       background: rgba(255, 255, 255, 0.2);
       border-radius: 2px;
-      margin: 0 auto 12px;
+      margin: 8px auto 4px;
+    }
+
+    /* Panel Content - Scrollable area */
+    .panel-content {
+      flex: 1;
+      background: linear-gradient(to bottom, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.95));
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 0 16px 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+
+    .panel-content::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
     }
 
     /* Filter chips - horizontal scroll */
     .filter-section {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
     .filter-section-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--light-2);
       margin-bottom: 12px;
       padding-left: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .filter-section-title i {
-      color: var(--primary);
-      font-size: 16px;
     }
 
     .filter-chips {
@@ -215,10 +270,10 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 100px;
-      padding: 10px 20px;
+      padding: 8px 16px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       white-space: nowrap;
       transition: all 0.2s ease;
       backdrop-filter: blur(5px);
@@ -231,7 +286,7 @@
     }
 
     .chip-emoji {
-      font-size: 20px;
+      font-size: 18px;
     }
 
     .chip-info {
@@ -242,42 +297,56 @@
 
     .chip-name {
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13px;
       color: white;
     }
 
     .chip-matric {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--primary-light);
       font-weight: 500;
     }
 
     /* Adjustment controls - compact grid */
+    .adjustment-section {
+      margin-bottom: 20px;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--light-2);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .adjustment-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .adj-btn {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 14px;
-      padding: 12px 0;
+      border-radius: 12px;
+      padding: 10px 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
       color: white;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 500;
       transition: all 0.2s ease;
       backdrop-filter: blur(5px);
     }
 
     .adj-btn i {
-      font-size: 18px;
+      font-size: 16px;
       color: var(--primary-light);
     }
 
@@ -289,7 +358,7 @@
     .adj-btn.wide {
       grid-column: span 2;
       flex-direction: row;
-      gap: 8px;
+      gap: 6px;
     }
 
     .adj-btn.primary {
@@ -314,32 +383,33 @@
     .live-display {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: space-around;
       background: rgba(0, 0, 0, 0.3);
       border-radius: 100px;
-      padding: 8px 16px;
-      margin: 8px 0;
+      padding: 8px 12px;
+      margin: 12px 0;
       border: 1px solid rgba(99, 102, 241, 0.2);
     }
 
     .display-item {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 13px;
+      gap: 4px;
+      font-size: 12px;
     }
 
     .display-item i {
       color: var(--primary);
-      font-size: 14px;
+      font-size: 12px;
     }
 
     .display-value {
       font-weight: 700;
       color: white;
       background: rgba(255, 255, 255, 0.1);
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 100px;
+      font-size: 11px;
     }
 
     /* Capture button */
@@ -347,44 +417,40 @@
       background: var(--gradient-2);
       border: none;
       border-radius: 100px;
-      padding: 16px;
+      padding: 14px;
       font-weight: 700;
-      font-size: 16px;
+      font-size: 15px;
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       width: 100%;
-      margin: 8px 0;
-      box-shadow: 0 4px 20px rgba(20, 184, 166, 0.3);
+      margin: 8px 0 16px;
+      box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .capture-btn i {
-      font-size: 20px;
     }
 
     .capture-btn:active {
       transform: scale(0.98);
     }
 
-    /* Team drawer - slide up panel */
-    .team-drawer {
+    /* Team drawer */
+    .team-section {
       margin-top: 8px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       padding-top: 12px;
     }
 
-    .team-drawer-header {
+    .team-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
     }
 
-    .team-drawer-title {
-      font-size: 14px;
+    .team-title {
+      font-size: 13px;
       font-weight: 600;
       color: var(--light-2);
       display: flex;
@@ -392,95 +458,85 @@
       gap: 6px;
     }
 
-    .team-scroll-horizontal {
+    .team-scroll {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       overflow-x: auto;
       padding: 4px 0 12px;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
 
-    .team-scroll-horizontal::-webkit-scrollbar {
+    .team-scroll::-webkit-scrollbar {
       display: none;
     }
 
-    .team-mini-card {
+    .team-card {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 20px;
-      padding: 10px 16px;
+      border-radius: 16px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      min-width: 140px;
+      gap: 8px;
+      min-width: 130px;
       backdrop-filter: blur(5px);
     }
 
-    .mini-avatar {
-      width: 36px;
-      height: 36px;
+    .team-avatar {
+      width: 32px;
+      height: 32px;
       background: var(--gradient-1);
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 12px;
       color: white;
     }
 
-    .mini-info {
+    .team-info {
       flex: 1;
     }
 
-    .mini-name {
+    .team-name {
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12px;
       margin-bottom: 2px;
     }
 
-    .mini-matric {
-      font-size: 10px;
+    .team-matric {
+      font-size: 9px;
       color: var(--primary-light);
     }
 
-    .filter-tag {
-      font-size: 10px;
+    .team-filter-badge {
+      font-size: 9px;
       background: rgba(99, 102, 241, 0.2);
-      padding: 2px 6px;
+      padding: 2px 4px;
       border-radius: 100px;
       display: inline-block;
-      margin-left: 4px;
     }
 
-    /* Collapsible panel state */
-    .action-panel.collapsed {
-      transform: translateY(calc(100% - 80px));
+    /* Expand hint */
+    .expand-hint {
+      text-align: center;
+      font-size: 9px;
+      color: var(--light-2);
+      opacity: 0.5;
+      padding: 4px 0 2px;
     }
 
-    /* Landscape orientation */
-    @media (orientation: landscape) and (max-height: 500px) {
-      .action-panel {
-        padding: 8px 16px max(8px, var(--safe-bottom));
+    /* Landscape adjustments */
+    @media (orientation: landscape) and (max-height: 600px) {
+      :root {
+        --panel-expanded: 70vh;
       }
       
       .adjustment-grid {
-        grid-template-columns: repeat(8, 1fr);
+        grid-template-columns: repeat(6, 1fr);
       }
-      
-      .filter-chips {
-        margin-bottom: 4px;
-      }
-    }
-
-    /* Pull to expand hint */
-    .expand-hint {
-      text-align: center;
-      font-size: 10px;
-      color: var(--light-2);
-      opacity: 0.5;
-      margin-top: 4px;
     }
   </style>
 </head>
@@ -502,236 +558,266 @@
       </div>
     </div>
 
-    <!-- Camera View (Always Visible) -->
+    <!-- Camera View (Full remaining space) -->
     <div class="camera-container">
       <canvas id="canvas"></canvas>
-    </div>
-
-    <!-- Bottom Action Panel (Always visible, partially collapsed by default) -->
-    <div class="action-panel" id="actionPanel">
-      <!-- Pull indicator -->
-      <div class="pull-indicator" id="pullIndicator"></div>
       
-      <!-- Quick Filters (Always visible) -->
-      <div class="filter-section">
-        <div class="filter-section-title">
-          <i class="fas fa-magic"></i>
-          <span>FILTERS · tap to change</span>
-        </div>
-        <div class="filter-chips">
-          <!-- Glasses - Bounty -->
-          <div class="filter-chip active" id="filterglasses" onclick="setFilter('glasses')">
-            <span class="chip-emoji">👓</span>
-            <div class="chip-info">
-              <span class="chip-name">GLASSES</span>
-              <span class="chip-matric">U19MN1030</span>
+      <!-- Control Overlay - Slides over camera -->
+      <div class="control-overlay" id="controlOverlay">
+        <!-- Panel Header - Tap to expand/collapse -->
+        <div class="panel-header" id="panelHeader">
+          <div class="pull-indicator"></div>
+          <div class="panel-header-content">
+            <div class="panel-title">
+              <i class="fas fa-sliders-h"></i>
+              <span>FILTERS · tap to <span id="toggleText">expand</span></span>
             </div>
-          </div>
-          
-          <!-- Clownface - Jeffery -->
-          <div class="filter-chip" id="filterclownface" onclick="setFilter('clownface')">
-            <span class="chip-emoji">🤡</span>
-            <div class="chip-info">
-              <span class="chip-name">CLOWNFACE</span>
-              <span class="chip-matric">U19MN1020</span>
-            </div>
-          </div>
-          
-          <!-- Hard Hat - Daniel -->
-          <div class="filter-chip" id="filterhardhat" onclick="setFilter('hardhat')">
-            <span class="chip-emoji">⛑️</span>
-            <div class="chip-info">
-              <span class="chip-name">HARD HAT</span>
-              <span class="chip-matric">U19MN1013</span>
-            </div>
+            <i class="fas fa-chevron-up panel-arrow" id="panelArrow"></i>
           </div>
         </div>
-      </div>
+        
+        <!-- Scrollable Panel Content -->
+        <div class="panel-content" id="panelContent">
+          <!-- Quick Filters -->
+          <div class="filter-section">
+            <div class="filter-section-title">
+              <i class="fas fa-magic" style="margin-right: 6px;"></i> CHOOSE FILTER
+            </div>
+            <div class="filter-chips">
+              <!-- Glasses - Bounty -->
+              <div class="filter-chip active" id="filterglasses" onclick="setFilter('glasses')">
+                <span class="chip-emoji">👓</span>
+                <div class="chip-info">
+                  <span class="chip-name">GLASSES</span>
+                  <span class="chip-matric">U19MN1030</span>
+                </div>
+              </div>
+              
+              <!-- Clownface - Jeffery -->
+              <div class="filter-chip" id="filterclownface" onclick="setFilter('clownface')">
+                <span class="chip-emoji">🤡</span>
+                <div class="chip-info">
+                  <span class="chip-name">CLOWNFACE</span>
+                  <span class="chip-matric">U19MN1020</span>
+                </div>
+              </div>
+              
+              <!-- Hard Hat - Daniel -->
+              <div class="filter-chip" id="filterhardhat" onclick="setFilter('hardhat')">
+                <span class="chip-emoji">⛑️</span>
+                <div class="chip-info">
+                  <span class="chip-name">HARD HAT</span>
+                  <span class="chip-matric">U19MN1013</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <!-- Adjustment Controls (Always visible, compact) -->
-      <div class="adjustment-grid">
-        <button class="adj-btn" onclick="adjustFilter('up')">
-          <i class="fas fa-arrow-up"></i>
-          <span>UP</span>
-        </button>
-        <button class="adj-btn" onclick="adjustFilter('down')">
-          <i class="fas fa-arrow-down"></i>
-          <span>DOWN</span>
-        </button>
-        <button class="adj-btn" onclick="adjustFilter('left')">
-          <i class="fas fa-arrow-left"></i>
-          <span>LEFT</span>
-        </button>
-        <button class="adj-btn" onclick="adjustFilter('right')">
-          <i class="fas fa-arrow-right"></i>
-          <span>RIGHT</span>
-        </button>
-        
-        <button class="adj-btn" onclick="adjustFilter('bigger')">
-          <i class="fas fa-expand"></i>
-          <span>BIG</span>
-        </button>
-        <button class="adj-btn" onclick="adjustFilter('smaller')">
-          <i class="fas fa-compress"></i>
-          <span>SMALL</span>
-        </button>
-        
-        <button class="adj-btn" onclick="adjustFilter('wider')">
-          <i class="fas fa-arrows-alt-h"></i>
-          <span>↔️</span>
-        </button>
-        <button class="adj-btn" onclick="adjustFilter('narrower')">
-          <i class="fas fa-arrows-alt-h"></i>
-          <span>→←</span>
-        </button>
-        
-        <button class="adj-btn" onclick="adjustFilter('taller')">
-          <i class="fas fa-arrows-alt-v"></i>
-          <span>↕️</span>
-        </button>
-        <button class="adj-btn" onclick="adjustFilter('shorter')">
-          <i class="fas fa-arrows-alt-v"></i>
-          <span>↑↓</span>
-        </button>
-        
-        <button class="adj-btn wide warning" onclick="resetFilterAdjustments()">
-          <i class="fas fa-undo"></i>
-          <span>RESET</span>
-        </button>
-        
-        <button class="adj-btn wide primary" onclick="document.querySelector('.action-panel').classList.toggle('collapsed')">
-          <i class="fas fa-chevron-up"></i>
-          <span>MORE</span>
-        </button>
-      </div>
+          <!-- Adjustment Controls -->
+          <div class="adjustment-section">
+            <div class="section-label">
+              <i class="fas fa-arrows-alt"></i>
+              <span>POSITION</span>
+            </div>
+            <div class="adjustment-grid">
+              <button class="adj-btn" onclick="adjustFilter('up')">
+                <i class="fas fa-arrow-up"></i>
+                <span>UP</span>
+              </button>
+              <button class="adj-btn" onclick="adjustFilter('down')">
+                <i class="fas fa-arrow-down"></i>
+                <span>DOWN</span>
+              </button>
+              <button class="adj-btn" onclick="adjustFilter('left')">
+                <i class="fas fa-arrow-left"></i>
+                <span>LEFT</span>
+              </button>
+              <button class="adj-btn" onclick="adjustFilter('right')">
+                <i class="fas fa-arrow-right"></i>
+                <span>RIGHT</span>
+              </button>
+            </div>
 
-      <!-- Live Adjustment Display -->
-      <div class="live-display">
-        <div class="display-item">
-          <i class="fas fa-arrows-alt"></i>
-          <span class="display-value" id="posX">0</span>
-          <span>X</span>
-          <span class="display-value" id="posY">0</span>
-          <span>Y</span>
-        </div>
-        <div class="display-item">
-          <i class="fas fa-arrows-alt-h"></i>
-          <span class="display-value" id="scaleW">1.0</span>
-          <span>W</span>
-        </div>
-        <div class="display-item">
-          <i class="fas fa-arrows-alt-v"></i>
-          <span class="display-value" id="scaleH">1.0</span>
-          <span>H</span>
-        </div>
-      </div>
+            <div class="section-label">
+              <i class="fas fa-expand"></i>
+              <span>SIZE & ROTATION</span>
+            </div>
+            <div class="adjustment-grid">
+              <button class="adj-btn" onclick="adjustFilter('bigger')">
+                <i class="fas fa-expand"></i>
+                <span>BIG</span>
+              </button>
+              <button class="adj-btn" onclick="adjustFilter('smaller')">
+                <i class="fas fa-compress"></i>
+                <span>SMALL</span>
+              </button>
+              <button class="adj-btn" onclick="adjustFilter('rotateLeft')">
+                <i class="fas fa-undo"></i>
+                <span>↶ ROT</span>
+              </button>
+              <button class="adj-btn" onclick="adjustFilter('rotateRight')">
+                <i class="fas fa-redo"></i>
+                <span>↷ ROT</span>
+              </button>
+            </div>
 
-      <!-- Capture Button -->
-      <button class="capture-btn" onclick="takePhoto()">
-        <i class="fas fa-camera"></i>
-        CAPTURE PHOTO
-      </button>
+            <div class="section-label">
+              <i class="fas fa-arrows-alt-h"></i>
+              <span>STRETCH</span>
+            </div>
+            <div class="adjustment-grid">
+              <button class="adj-btn" onclick="adjustFilter('wider')">
+                <i class="fas fa-arrows-alt-h"></i>
+                <span>WIDE</span>
+              </button>
+              <button class="adj-btn" onclick="adjustFilter('narrower')">
+                <i class="fas fa-arrows-alt-h"></i>
+                <span>NARROW</span>
+              </button>
+              <button class="adj-btn" onclick="adjustFilter('taller')">
+                <i class="fas fa-arrows-alt-v"></i>
+                <span>TALL</span>
+              </button>
+              <button class="adj-btn" onclick="adjustFilter('shorter')">
+                <i class="fas fa-arrows-alt-v"></i>
+                <span>SHORT</span>
+              </button>
+            </div>
 
-      <!-- Team Members (Horizontal Scroll) -->
-      <div class="team-drawer">
-        <div class="team-drawer-header">
-          <div class="team-drawer-title">
-            <i class="fas fa-users"></i>
-            <span>TEAM 02 · MCEN521</span>
+            <!-- Live Adjustment Display -->
+            <div class="live-display">
+              <div class="display-item">
+                <i class="fas fa-arrows-alt"></i>
+                <span class="display-value" id="posX">0</span>
+                <span>X</span>
+                <span class="display-value" id="posY">0</span>
+                <span>Y</span>
+              </div>
+              <div class="display-item">
+                <i class="fas fa-arrows-alt-h"></i>
+                <span class="display-value" id="scaleW">1.0</span>
+              </div>
+              <div class="display-item">
+                <i class="fas fa-arrows-alt-v"></i>
+                <span class="display-value" id="scaleH">1.0</span>
+              </div>
+            </div>
+
+            <!-- Reset Button -->
+            <button class="adj-btn wide warning" onclick="resetFilterAdjustments()" style="width: 100%; margin: 8px 0;">
+              <i class="fas fa-undo"></i>
+              <span>RESET ALL ADJUSTMENTS</span>
+            </button>
+
+            <!-- Capture Button -->
+            <button class="capture-btn" onclick="takePhoto()">
+              <i class="fas fa-camera"></i>
+              CAPTURE PHOTO
+            </button>
           </div>
-          <span class="filter-tag">Prof. Alim Sabur</span>
+
+          <!-- Team Section -->
+          <div class="team-section">
+            <div class="team-header">
+              <div class="team-title">
+                <i class="fas fa-users"></i>
+                <span>TEAM 02 · MCEN521</span>
+              </div>
+              <span class="team-filter-badge">Prof. Alim Sabur</span>
+            </div>
+            
+            <div class="team-scroll">
+              <!-- Team Members -->
+              <div class="team-card">
+                <div class="team-avatar">OG</div>
+                <div class="team-info">
+                  <div class="team-name">Opeyemi G.</div>
+                  <div class="team-matric">U19MN1032</div>
+                </div>
+              </div>
+              
+              <div class="team-card">
+                <div class="team-avatar">DE</div>
+                <div class="team-info">
+                  <div class="team-name">Daniel E.</div>
+                  <div class="team-matric">U19MN1013</div>
+                  <span class="team-filter-badge">⛑️</span>
+                </div>
+              </div>
+              
+              <div class="team-card">
+                <div class="team-avatar">JE</div>
+                <div class="team-info">
+                  <div class="team-name">Jeffery E.</div>
+                  <div class="team-matric">U19MN1020</div>
+                  <span class="team-filter-badge">🤡</span>
+                </div>
+              </div>
+              
+              <div class="team-card">
+                <div class="team-avatar">BA</div>
+                <div class="team-info">
+                  <div class="team-name">Bounty A.</div>
+                  <div class="team-matric">U19MN1030</div>
+                  <span class="team-filter-badge">👓</span>
+                </div>
+              </div>
+              
+              <div class="team-card">
+                <div class="team-avatar">YM</div>
+                <div class="team-info">
+                  <div class="team-name">Yusuf M.</div>
+                  <div class="team-matric">U19MN1036</div>
+                </div>
+              </div>
+              
+              <div class="team-card">
+                <div class="team-avatar">KJ</div>
+                <div class="team-info">
+                  <div class="team-name">Kemba J.</div>
+                  <div class="team-matric">U21MN2006</div>
+                </div>
+              </div>
+              
+              <div class="team-card">
+                <div class="team-avatar">AM</div>
+                <div class="team-info">
+                  <div class="team-name">Abbas M.</div>
+                  <div class="team-matric">U19MN1007</div>
+                </div>
+              </div>
+              
+              <div class="team-card">
+                <div class="team-avatar">JA</div>
+                <div class="team-info">
+                  <div class="team-name">Junaidu A.</div>
+                  <div class="team-matric">U21MN2002</div>
+                </div>
+              </div>
+              
+              <div class="team-card">
+                <div class="team-avatar">FI</div>
+                <div class="team-info">
+                  <div class="team-name">Folorunsho I.</div>
+                  <div class="team-matric">U19MN1027</div>
+                </div>
+              </div>
+              
+              <div class="team-card">
+                <div class="team-avatar">AG</div>
+                <div class="team-info">
+                  <div class="team-name">Abdulazeez G.</div>
+                  <div class="team-matric">U21MN2004</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Expand hint (only shows when collapsed) -->
+          <div class="expand-hint" id="expandHint">
+            <i class="fas fa-chevron-up"></i> tap header to expand
+          </div>
         </div>
-        
-        <div class="team-scroll-horizontal">
-          <!-- Team Members -->
-          <div class="team-mini-card">
-            <div class="mini-avatar">OG</div>
-            <div class="mini-info">
-              <div class="mini-name">Opeyemi G.</div>
-              <div class="mini-matric">U19MN1032</div>
-            </div>
-          </div>
-          
-          <div class="team-mini-card" style="border-left-color: var(--secondary);">
-            <div class="mini-avatar">DE</div>
-            <div class="mini-info">
-              <div class="mini-name">Daniel E.</div>
-              <div class="mini-matric">U19MN1013</div>
-              <span class="filter-tag">⛑️</span>
-            </div>
-          </div>
-          
-          <div class="team-mini-card">
-            <div class="mini-avatar">JE</div>
-            <div class="mini-info">
-              <div class="mini-name">Jeffery E.</div>
-              <div class="mini-matric">U19MN1020</div>
-              <span class="filter-tag">🤡</span>
-            </div>
-          </div>
-          
-          <div class="team-mini-card">
-            <div class="mini-avatar">BA</div>
-            <div class="mini-info">
-              <div class="mini-name">Bounty A.</div>
-              <div class="mini-matric">U19MN1030</div>
-              <span class="filter-tag">👓</span>
-            </div>
-          </div>
-          
-          <div class="team-mini-card">
-            <div class="mini-avatar">YM</div>
-            <div class="mini-info">
-              <div class="mini-name">Yusuf M.</div>
-              <div class="mini-matric">U19MN1036</div>
-            </div>
-          </div>
-          
-          <div class="team-mini-card">
-            <div class="mini-avatar">KJ</div>
-            <div class="mini-info">
-              <div class="mini-name">Kemba J.</div>
-              <div class="mini-matric">U21MN2006</div>
-            </div>
-          </div>
-          
-          <div class="team-mini-card">
-            <div class="mini-avatar">AM</div>
-            <div class="mini-info">
-              <div class="mini-name">Abbas M.</div>
-              <div class="mini-matric">U19MN1007</div>
-            </div>
-          </div>
-          
-          <div class="team-mini-card">
-            <div class="mini-avatar">JA</div>
-            <div class="mini-info">
-              <div class="mini-name">Junaidu A.</div>
-              <div class="mini-matric">U21MN2002</div>
-            </div>
-          </div>
-          
-          <div class="team-mini-card">
-            <div class="mini-avatar">FI</div>
-            <div class="mini-info">
-              <div class="mini-name">Folorunsho I.</div>
-              <div class="mini-matric">U19MN1027</div>
-            </div>
-          </div>
-          
-          <div class="team-mini-card">
-            <div class="mini-avatar">AG</div>
-            <div class="mini-info">
-              <div class="mini-name">Abdulazeez G.</div>
-              <div class="mini-matric">U21MN2004</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Expand hint -->
-      <div class="expand-hint">
-        <i class="fas fa-chevron-up"></i> swipe up for more controls
       </div>
     </div>
   </div>
@@ -740,6 +826,29 @@
   <video id="video" style="display:none;" autoplay playsinline></video>
 
   <script>
+    // Panel toggle functionality
+    const overlay = document.getElementById('controlOverlay');
+    const header = document.getElementById('panelHeader');
+    const toggleText = document.getElementById('toggleText');
+    const panelArrow = document.getElementById('panelArrow');
+    const expandHint = document.getElementById('expandHint');
+    
+    function togglePanel() {
+      overlay.classList.toggle('expanded');
+      
+      if (overlay.classList.contains('expanded')) {
+        toggleText.textContent = 'collapse';
+        panelArrow.style.transform = 'rotate(180deg)';
+        if (expandHint) expandHint.style.opacity = '0';
+      } else {
+        toggleText.textContent = 'expand';
+        panelArrow.style.transform = 'rotate(0deg)';
+        if (expandHint) expandHint.style.opacity = '0.5';
+      }
+    }
+    
+    header.addEventListener('click', togglePanel);
+    
     // Update display function
     function updateAdjustmentDisplay() {
       const posX = document.getElementById('posX');
@@ -770,27 +879,37 @@
 
     // Pull to expand/collapse (touch gesture)
     let startY = 0;
-    const panel = document.getElementById('actionPanel');
-    const indicator = document.getElementById('pullIndicator');
     
-    indicator.addEventListener('touchstart', (e) => {
+    header.addEventListener('touchstart', (e) => {
       startY = e.touches[0].clientY;
     });
     
-    indicator.addEventListener('touchmove', (e) => {
+    header.addEventListener('touchmove', (e) => {
       if (!startY) return;
       const deltaY = e.touches[0].clientY - startY;
       
-      if (deltaY < -30) {
-        panel.classList.remove('collapsed');
-      } else if (deltaY > 30) {
-        panel.classList.add('collapsed');
+      if (deltaY < -30 && !overlay.classList.contains('expanded')) {
+        togglePanel();
+      } else if (deltaY > 30 && overlay.classList.contains('expanded')) {
+        togglePanel();
       }
     });
     
-    indicator.addEventListener('touchend', () => {
+    header.addEventListener('touchend', () => {
       startY = 0;
     });
+
+    // Auto-collapse when selecting a filter? (optional)
+    // Uncomment if you want panel to collapse after filter selection
+    /*
+    const originalAdjustFilter = adjustFilter;
+    adjustFilter = function(direction) {
+      originalAdjustFilter(direction);
+      if (overlay.classList.contains('expanded')) {
+        setTimeout(togglePanel, 500); // Collapse after 500ms
+      }
+    };
+    */
   </script>
 
   <script src="script.js"></script>
