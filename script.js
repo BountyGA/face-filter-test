@@ -25,27 +25,6 @@ canvasElement.height = 480;
 if (!videoElement) console.error('Video element not found!');
 if (!canvasElement) console.error('Canvas element not found!');
 
-// Request camera with specific constraints
-navigator.mediaDevices.getUserMedia({ 
-  video: {
-    width: { ideal: 640 },
-    height: { ideal: 480 },
-    facingMode: "user"
-  } 
-})
-.then(stream => {
-  console.log('Camera stream obtained');
-  videoElement.srcObject = stream;
-  return videoElement.play();
-})
-.then(() => {
-  console.log('Video playing');
-})
-.catch(err => {
-  console.error('Camera error:', err);
-  alert('Cannot access camera. Please make sure you have granted permission.');
-});
-
 // Initialize FaceMesh
 const faceMesh = new FaceMesh({
   locateFile: (file) => {
@@ -89,9 +68,7 @@ faceMesh.onResults(results => {
       const centerY = (y1 + y2) / 2;
       
       // Apply filter based on selection
-      canvasCtx.save(); // Save context state
-      
-      if (currentFilter === "glasses") {
+      if (currentFilter === "glasses" && glasses.complete) {
         const glassesWidth = eyeDistance * 2.2;
         const glassesHeight = glassesWidth * 0.4;
         
@@ -104,7 +81,7 @@ faceMesh.onResults(results => {
         );
       }
       
-      else if (currentFilter === "clownface") {
+      else if (currentFilter === "clownface" && clownface.complete) {
         // Use nose for clown face
         const nose = landmarks[1];
         const noseX = (1 - nose.x) * canvasElement.width;
@@ -122,7 +99,7 @@ faceMesh.onResults(results => {
         );
       }
       
-      else if (currentFilter === "hardhat") {
+      else if (currentFilter === "hardhat" && hardhat.complete) {
         // Use forehead for hard hat
         const forehead = landmarks[10];
         const fx = (1 - forehead.x) * canvasElement.width;
@@ -139,13 +116,11 @@ faceMesh.onResults(results => {
           capHeight
         );
       }
-      
-      canvasCtx.restore(); // Restore context state
     }
   }
 });
 
-// Initialize camera with proper configuration
+// Initialize camera with proper configuration - THIS IS THE ONLY CAMERA ACCESS
 const camera = new Camera(videoElement, {
   onFrame: async () => {
     if (videoElement.readyState >= 2) { // Check if video is playing
@@ -161,6 +136,7 @@ camera.start().then(() => {
   console.log('Camera started successfully');
 }).catch(err => {
   console.error('Error starting camera:', err);
+  alert('Cannot access camera. Please make sure you have granted permission and are using HTTPS or localhost.');
 });
 
 function takePhoto() {
