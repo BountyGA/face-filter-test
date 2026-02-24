@@ -1,38 +1,52 @@
 let currentFilter = "glasses";
 
-// Load images
-const clownface = new Image();
-clownface.src = "clownface.png";
-
-const hardhat = new Image();
-hardhat.src = "hardhat.png";  // Fixed: was flatcap.src
-
+// Load images with error handling
 const glasses = new Image();
 glasses.src = "glasses.png";
+glasses.onerror = () => console.error('Failed to load glasses.png');
+
+const clownface = new Image();
+clownface.src = "clownface.png";
+clownface.onerror = () => console.error('Failed to load clownface.png');
+
+const hardhat = new Image();
+hardhat.src = "hardhat.png";
+hardhat.onerror = () => console.error('Failed to load hardhat.png');
 
 const videoElement = document.getElementById('video');
 const canvasElement = document.getElementById('canvas');
 const canvasCtx = canvasElement.getContext('2d');
 
+// Set canvas dimensions
 canvasElement.width = 640;
 canvasElement.height = 480;
 
-// Ensure images are loaded before use
-Promise.all([
-  new Promise(resolve => glasses.onload = resolve),
-  new Promise(resolve => clownface.onload = resolve),
-  new Promise(resolve => hardhat.onload = resolve)
-]).then(() => {
-  console.log('All images loaded successfully');
+// Make sure video element exists
+if (!videoElement) console.error('Video element not found!');
+if (!canvasElement) console.error('Canvas element not found!');
+
+// Request camera with specific constraints
+navigator.mediaDevices.getUserMedia({ 
+  video: {
+    width: { ideal: 640 },
+    height: { ideal: 480 },
+    facingMode: "user"
+  } 
+})
+.then(stream => {
+  console.log('Camera stream obtained');
+  videoElement.srcObject = stream;
+  return videoElement.play();
+})
+.then(() => {
+  console.log('Video playing');
+})
+.catch(err => {
+  console.error('Camera error:', err);
+  alert('Cannot access camera. Please make sure you have granted permission.');
 });
 
-navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
-    videoElement.srcObject = stream;
-    videoElement.play();
-  })
-  .catch(err => console.error('Camera error:', err));
-
+// Initialize FaceMesh
 const faceMesh = new FaceMesh({
   locateFile: (file) => {
     return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
@@ -47,8 +61,15 @@ faceMesh.setOptions({
 });
 
 faceMesh.onResults(results => {
+  // Clear canvas and draw video frame
+  canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  
+  // Draw video with mirror effect
+  canvasCtx.translate(canvasElement.width, 0);
+  canvasCtx.scale(-1, 1);
   canvasCtx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+  canvasCtx.restore();
 
   if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
     for (const landmarks of results.multiFaceLandmarks) {
@@ -57,9 +78,10 @@ faceMesh.onResults(results => {
       const leftEye = landmarks[33];
       const rightEye = landmarks[263];
       
-      const x1 = leftEye.x * canvasElement.width;
+      // Adjust coordinates for mirror effect
+      const x1 = (1 - leftEye.x) * canvasElement.width;
       const y1 = leftEye.y * canvasElement.height;
-      const x2 = rightEye.x * canvasElement.width;
+      const x2 = (1 - rightEye.x) * canvasElement.width;
       const y2 = rightEye.y * canvasElement.height;
       
       const eyeDistance = Math.sqrt((x2 - x1)**2 + (y2 - y1)**2);
@@ -67,6 +89,8 @@ faceMesh.onResults(results => {
       const centerY = (y1 + y2) / 2;
       
       // Apply filter based on selection
+      canvasCtx.save(); // Save context state
+      
       if (currentFilter === "glasses") {
         const glassesWidth = eyeDistance * 2.2;
         const glassesHeight = glassesWidth * 0.4;
@@ -83,7 +107,7 @@ faceMesh.onResults(results => {
       else if (currentFilter === "clownface") {
         // Use nose for clown face
         const nose = landmarks[1];
-        const noseX = nose.x * canvasElement.width;
+        const noseX = (1 - nose.x) * canvasElement.width;
         const noseY = nose.y * canvasElement.height;
         
         const clownWidth = eyeDistance * 2.5;
@@ -101,7 +125,7 @@ faceMesh.onResults(results => {
       else if (currentFilter === "hardhat") {
         // Use forehead for hard hat
         const forehead = landmarks[10];
-        const fx = forehead.x * canvasElement.width;
+        const fx = (1 - forehead.x) * canvasElement.width;
         const fy = forehead.y * canvasElement.height;
         
         const capWidth = eyeDistance * 3.0;
@@ -115,62 +139,29 @@ faceMesh.onResults(results => {
           capHeight
         );
       }
+      
+      canvasCtx.restore(); // Restore context state
     }
   }
 });
 
-    else if (currentFilter === "clownmouth") {
-  // Draw on mouth
-  const mouthLeft = landmarks[61];
-  const mouthRight = landmarks[291];
-  
-  const mx1 = mouthLeft.x * canvasElement.width;
-  const my1 = mouthLeft.y * canvasElement.height;
-  const mx2 = mouthRight.x * canvasElement.width;
-  const my2 = mouthRight.y * canvasElement.height;
-  
-  const mouthWidth = Math.sqrt((mx2 - mx1)**2 + (my2 - my1)**2) * 2;
-  const mouthX = (mx1 + mx2) / 2;
-  const mouthY = (my1 + my2) / 2;
-  
-  canvasCtx.drawImage(
-    clownface,
-    mouthX - mouthWidth / 2,
-    mouthY - mouthWidth * 0.3,
-    mouthWidth,
-    mouthWidth * 0.5
-  );
-}
-/*
-else if (currentFilter === "clowneyes") {
-  // Draw on both eyes
-  const eyePositions = [33, 263]; // Left and right eye
-  const eyeSize = eyeDistance * 1.2;
-  
-  eyePositions.forEach(index => {
-    const eye = landmarks[index];
-    const ex = eye.x * canvasElement.width;
-    const ey = eye.y * canvasElement.height;
-    
-    canvasCtx.drawImage(
-      clownface,
-      ex - eyeSize / 2,
-      ey - eyeSize / 2,
-      eyeSize,
-      eyeSize
-    );
-  });
-}
-*/
-
+// Initialize camera with proper configuration
 const camera = new Camera(videoElement, {
   onFrame: async () => {
-    await faceMesh.send({ image: videoElement });
+    if (videoElement.readyState >= 2) { // Check if video is playing
+      await faceMesh.send({ image: videoElement });
+    }
   },
   width: 640,
   height: 480
 });
-camera.start();
+
+// Start camera with error handling
+camera.start().then(() => {
+  console.log('Camera started successfully');
+}).catch(err => {
+  console.error('Error starting camera:', err);
+});
 
 function takePhoto() {
   const link = document.createElement('a');
@@ -193,3 +184,8 @@ function setFilter(filter) {
     activeBtn.classList.add("active");
   }
 }
+
+// Add a small delay to ensure everything is loaded
+window.addEventListener('load', () => {
+  console.log('Page loaded, initializing...');
+});
