@@ -1,7 +1,7 @@
 let currentFilter = "glasses";
 
-const mustache = new Image();
-mustache.src = "clownface.png";
+const clownface = new Image();
+clownface.src = "clownface.png";
 
 const flatcap = new Image();
 flatcap.src = "flatcap.png";
