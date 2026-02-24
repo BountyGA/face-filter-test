@@ -289,28 +289,35 @@
               <canvas id="canvas"></canvas>
             </div>
             
-               <!-- Fine-tuning controls -->
-            <div class="row g-2 mt-3">
-              <div class="col-12">
-                <div class="btn-group w-100" role="group">
-                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('up')" style="font-size: 1.2rem;">⬆️</button>
-                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('down')" style="font-size: 1.2rem;">⬇️</button>
-                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('left')" style="font-size: 1.2rem;">⬅️</button>
-                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('right')" style="font-size: 1.2rem;">➡️</button>
-                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('bigger')" style="font-size: 1.2rem;">➕</button>
-                  <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('smaller')" style="font-size: 1.2rem;">➖</button>
-                  <button class="btn btn-sm btn-outline-warning" onclick="resetFilterAdjustments()" style="font-size: 1.2rem;">↺</button>
+              <!-- Fine-tuning controls -->
+                <div class="row g-2 mt-3">
+                  <div class="col-12">
+                    <div class="btn-group w-100 mb-2" role="group">
+                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('up')" style="font-size: 1.2rem;">⬆️</button>
+                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('down')" style="font-size: 1.2rem;">⬇️</button>
+                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('left')" style="font-size: 1.2rem;">⬅️</button>
+                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('right')" style="font-size: 1.2rem;">➡️</button>
+                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('bigger')" style="font-size: 1.2rem;">➕</button>
+                      <button class="btn btn-sm btn-outline-info" onclick="adjustFilter('smaller')" style="font-size: 1.2rem;">➖</button>
+                      <button class="btn btn-sm btn-outline-warning" onclick="resetFilterAdjustments()" style="font-size: 1.2rem;">↺</button>
+                    </div>
+                    
+                    <!-- New horizontal/vertical controls -->
+                    <div class="btn-group w-100" role="group">
+                      <button class="btn btn-sm btn-outline-primary" onclick="adjustFilter('wider')" style="font-size: 1rem;">⬌ WIDER</button>
+                      <button class="btn btn-sm btn-outline-primary" onclick="adjustFilter('narrower')" style="font-size: 1rem;">⬍ NARROWER</button>
+                      <button class="btn btn-sm btn-outline-success" onclick="adjustFilter('taller')" style="font-size: 1rem;">⬆︎ TALLER</button>
+                      <button class="btn btn-sm btn-outline-success" onclick="adjustFilter('shorter')" style="font-size: 1rem;">⬇︎ SHORTER</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            
-            <!-- Optional: Show current adjustments -->
-            <div class="row g-2 mt-2">
-              <div class="col-12 text-center text-info small">
-                <span id="adjustmentDisplay">Use arrows to fine-tune filter</span>
-              </div>
-            </div>
-            
+                
+                <!-- Show current adjustments -->
+                <div class="row g-2 mt-2">
+                  <div class="col-12 text-center text-info small" style="background: rgba(0,0,0,0.3); padding: 5px; border-radius: 20px;">
+                    <span id="adjustmentDisplay">Position: X:0, Y:0 | Size: W:1.0x, H:1.0x</span>
+                  </div>
+                </div>
             <!-- Button Panel -->
             <div class="row g-2">
               <div class="col-12 col-sm-6">
