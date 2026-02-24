@@ -127,4 +127,15 @@ function takePhoto() {
 }
 function setFilter(filter) {
   currentFilter = filter;
+
+  // Remove active class from all filter buttons
+  document.querySelectorAll('.btn-filter-custom').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // Add active to the clicked one
+  const activeBtn = document.getElementById("filter" + filter);
+  if (activeBtn) {
+    activeBtn.classList.add("active");
+  }
 }
