@@ -4,7 +4,7 @@ const clownface = new Image();
 clownface.src = "clownface.png";
 
 const flatcap = new Image();
-flatcap.src = "flatcap.png";
+flatcap.src = "hardhat.png";
 
 
 const videoElement = document.getElementById('video');
@@ -97,7 +97,7 @@ if (currentFilter === "clownface") {
   );
 }
 */
-      if (currentFilter === "flatcap") {
+      if (currentFilter === "hardhat") {
 
   const forehead = landmarks[10];
 
@@ -108,7 +108,7 @@ if (currentFilter === "clownface") {
   const capHeight = capWidth * 0.8;
 
   canvasCtx.drawImage(
-    flatcap,
+    hardhat,
     fx - capWidth / 2,
     fy - capHeight,
     capWidth,
