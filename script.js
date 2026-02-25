@@ -159,7 +159,7 @@ faceMesh.onResults(results => {
         const capHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
-          hardhat,
+          headphones,
           fx - capWidth / 2 + filterOffsetX,
           fy - capHeight * 0.7 + filterOffsetY,
           capWidth,
