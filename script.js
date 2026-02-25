@@ -53,6 +53,10 @@ const glasses = new Image();
 glasses.src = "glasses.png";
 glasses.onerror = () => console.error('Failed to load glasses.png');
 
+const headphones = new Image();
+headphones.src = "headphones.png";
+headphones.onerror = () => console.error('Failed to load headphones.png');
+
 const clownface = new Image();
 clownface.src = "clownface.png";
 clownface.onerror = () => console.error('Failed to load clownface.png');
@@ -137,6 +141,29 @@ faceMesh.onResults(results => {
           centerY - glassesHeight / 2 - (glassesHeight * 0.2) + filterOffsetY,
           glassesWidth,
           glassesHeight
+        );
+      }
+
+        else if (currentFilter === "headphones" && headphones.complete) {
+        const forehead = landmarks[10];
+        const fx = (1 - forehead.x) * canvasElement.width;
+        const fy = forehead.y * canvasElement.height;
+        
+        const leftBrow = landmarks[70];
+        const rightBrow = landmarks[300];
+        const leftBrowX = (1 - leftBrow.x) * canvasElement.width;
+        const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
+        const browDistance = Math.abs(rightBrowX - leftBrowX);
+        
+        const capWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
+        const capHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
+        
+        canvasCtx.drawImage(
+          hardhat,
+          fx - capWidth / 2 + filterOffsetX,
+          fy - capHeight * 0.7 + filterOffsetY,
+          capWidth,
+          capHeight
         );
       }
       
