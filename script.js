@@ -156,6 +156,29 @@ faceMesh.onResults(results => {
           clownHeight
         );
       }
+
+        else if (currentFilter === "headphones" && headphones.complete) {
+        const forehead = landmarks[10];
+        const fx = (1 - forehead.x) * canvasElement.width;
+        const fy = forehead.y * canvasElement.height;
+        
+        const leftBrow = landmarks[70];
+        const rightBrow = landmarks[300];
+        const leftBrowX = (1 - leftBrow.x) * canvasElement.width;
+        const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
+        const browDistance = Math.abs(rightBrowX - leftBrowX);
+        
+        const capWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
+        const capHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
+        
+        canvasCtx.drawImage(
+          headphones,
+          fx - capWidth / 2 + filterOffsetX,
+          fy - capHeight * 0.7 + filterOffsetY,
+          capWidth,
+          capHeight
+        );
+        }
       
       else if (currentFilter === "hardhat" && hardhat.complete) {
         const forehead = landmarks[10];
