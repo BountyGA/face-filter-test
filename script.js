@@ -53,10 +53,6 @@ const glasses = new Image();
 glasses.src = "glasses.png";
 glasses.onerror = () => console.error('Failed to load glasses.png');
 
-const headphones = new Image();
-hardhat.src = "headphones.png";
-hardhat.onerror = () => console.error('Failed to load headphones.png');
-
 const clownface = new Image();
 clownface.src = "clownface.png";
 clownface.onerror = () => console.error('Failed to load clownface.png');
@@ -156,19 +152,6 @@ faceMesh.onResults(results => {
           clownHeight
         );
       }
-        else if (currentFilter === "headphones" && headphones.complete) {
-        const clownWidth = faceWidth * 1.2 * filterScaleX;  // Use X scale
-        const clownHeight = clownWidth * 0.8 * filterScaleY;  // Use Y scale
-        
-        canvasCtx.drawImage(
-          clownface,
-          centerX - clownWidth / 2 + filterOffsetX,
-          centerY - clownHeight / 2 - (clownHeight * 0.1) + filterOffsetY,
-          clownWidth,
-          clownHeight
-        );
-        }
-    
       
       else if (currentFilter === "hardhat" && hardhat.complete) {
         const forehead = landmarks[10];
