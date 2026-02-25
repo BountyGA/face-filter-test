@@ -53,6 +53,10 @@ const glasses = new Image();
 glasses.src = "glasses.png";
 glasses.onerror = () => console.error('Failed to load glasses.png');
 
+const headphones = new Image();
+hardhat.src = "headphones.png";
+hardhat.onerror = () => console.error('Failed to load headphones.png');
+
 const clownface = new Image();
 clownface.src = "clownface.png";
 clownface.onerror = () => console.error('Failed to load clownface.png');
