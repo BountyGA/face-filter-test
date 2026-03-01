@@ -53,6 +53,10 @@ const glasses = new Image();
 glasses.src = "glasses.png";
 glasses.onerror = () => console.error('Failed to load glasses.png');
 
+const tradicap = new Image();
+tradicap.src = "tradicap.png";
+tradicap.onerror = () => console.error('Failed to load tradicap.png');
+
 const headphones = new Image();
 headphones.src = "headphones.png";
 headphones.onerror = () => console.error('Failed to load headphones.png');
@@ -179,7 +183,30 @@ faceMesh.onResults(results => {
           clownHeight
         );
       }
-      
+
+        else if (currentFilter === "tradicap" && tradicap.complete) {
+        const forehead = landmarks[10];
+        const fx = (1 - forehead.x) * canvasElement.width;
+        const fy = forehead.y * canvasElement.height;
+        
+        const leftBrow = landmarks[70];
+        const rightBrow = landmarks[300];
+        const leftBrowX = (1 - leftBrow.x) * canvasElement.width;
+        const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
+        const browDistance = Math.abs(rightBrowX - leftBrowX);
+        
+        const tradicapWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
+        const tradicapHeight = tradicapWidth * 0.55 * filterScaleY;  // Use Y scale
+        
+        canvasCtx.drawImage(
+          tradicap,
+          fx - tradicapWidth / 2 + filterOffsetX,
+          fy - tradicapHeight * 0.7 + filterOffsetY,
+          tradicapWidth,
+          tradicapHeight
+       );
+      }
+          
       else if (currentFilter === "hardhat" && hardhat.complete) {
         const forehead = landmarks[10];
         const fx = (1 - forehead.x) * canvasElement.width;
