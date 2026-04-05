@@ -65,6 +65,10 @@ const clownface = new Image();
 clownface.src = "clownface.png";
 clownface.onerror = () => console.error('Failed to load clownface.png');
 
+const gasmask = new Image();
+gasmask.src = "gasmask.png";
+gasmask.onerror = () => console.error('Failed to load gasmask.png');
+
 const hardhat = new Image();
 hardhat.src = "hardhat.png";
 hardhat.onerror = () => console.error('Failed to load hardhat.png');
@@ -181,6 +185,20 @@ faceMesh.onResults(results => {
           centerY - clownHeight / 2 - (clownHeight * 0.1) + filterOffsetY,
           clownWidth,
           clownHeight
+        );
+      }
+
+        
+      else if (currentFilter === "gasmask" && gasmask.complete) {
+        const gasmaskWidth = faceWidth * 1.2 * filterScaleX;  // Use X scale
+        const gasmaskHeight = gasmaskWidth * 0.8 * filterScaleY;  // Use Y scale
+        
+        canvasCtx.drawImage(
+          gasmaskface,
+          centerX - gasmaskWidth / 2 + filterOffsetX,
+          centerY - gasmaskHeight / 2 - (gasmaskHeight * 0.1) + filterOffsetY,
+          gasmaskWidth,
+          gasmaskHeight
         );
       }
 
