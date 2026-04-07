@@ -194,7 +194,7 @@ faceMesh.onResults(results => {
         const gasmaskHeight = gasmaskWidth * 0.8 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
-          gasmaskface,
+          gasmask,
           centerX - gasmaskWidth / 2 + filterOffsetX,
           centerY - gasmaskHeight / 2 - (gasmaskHeight * 0.1) + filterOffsetY,
           gasmaskWidth,
