@@ -146,7 +146,7 @@ faceMesh.onResults(results => {
         canvasCtx.drawImage(
           glasses,
           centerX - glassesWidth / 2 + filterOffsetX,
-          centerY - glassesHeight / 2 - (glassesHeight * 0.2) + filterOffsetY,
+          centerY - glassesHeight / 2 - (glassesHeight * 0.03) + filterOffsetY,
           glassesWidth,
           glassesHeight
         );
