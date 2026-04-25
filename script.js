@@ -144,7 +144,7 @@ faceMesh.onResults(results => {
       
       // Apply filter based on selection
       if (currentFilter === "glasses" && glasses.complete) {
-        const glassesWidth = eyeDistance * 1.0 * filterScaleX;  // Use X scale
+        const glassesWidth = eyeDistance * 2.5 * filterScaleX;  // Use X scale
         const glassesHeight = glassesWidth * 0.35 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
@@ -167,15 +167,15 @@ faceMesh.onResults(results => {
         const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
-        const capWidth = browDistance * 3.5 * filterScaleX;  // Use X scale
-        const capHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
+        const headphoneWidth = browDistance * 3.5 * filterScaleX;  // Use X scale
+        const headphoneHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           headphones,
-          fx - capWidth / 2 + filterOffsetX,
-          fy - capHeight * 0.7 + filterOffsetY,
-          capWidth,
-          capHeight
+          fx - headphoneWidth / 2 + filterOffsetX,
+          fy - headphoneHeight * 1.5 + filterOffsetY,
+          headphoneWidth,
+          headphoneHeight
         );
       }
       
@@ -186,7 +186,7 @@ faceMesh.onResults(results => {
         canvasCtx.drawImage(
           clownface,
           centerX - clownWidth / 2 + filterOffsetX,
-          centerY - clownHeight / 2 - (clownHeight * 0.1) + filterOffsetY,
+          centerY - clownHeight / 2 - (clownHeight * 0.2) + filterOffsetY,
           clownWidth,
           clownHeight
         );
@@ -200,7 +200,7 @@ faceMesh.onResults(results => {
         canvasCtx.drawImage(
           gasmask,
           centerX - gasmaskWidth / 2 + filterOffsetX,
-          centerY - gasmaskHeight / 2 - (gasmaskHeight * 0.1) + filterOffsetY,
+          centerY - gasmaskHeight / 2 - (gasmaskHeight * 0.2) + filterOffsetY,
           gasmaskWidth,
           gasmaskHeight
         );
@@ -240,15 +240,15 @@ faceMesh.onResults(results => {
         const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
-        const capWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
-        const capHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
+        const hardhatWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
+        const hardhatHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           hardhat,
-          fx - capWidth / 2 + filterOffsetX,
-          fy - capHeight * 0.7 + filterOffsetY,
-          capWidth,
-          capHeight
+          fx - hardhatWidth / 2 + filterOffsetX,
+          fy - hardhatHeight * 0.7 + filterOffsetY,
+          hardhatWidth,
+          hardhatHeight
         );
       }
 
@@ -263,15 +263,15 @@ faceMesh.onResults(results => {
         const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
-        const capWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
-        const capHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
+        const pirateWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
+        const pirateHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           pirate,
-          fx - capWidth / 2 + filterOffsetX,
-          fy - capHeight * 0.7 + filterOffsetY,
-          capWidth,
-          capHeight
+          fx - pirateWidth / 2 + filterOffsetX,
+          fy - pirateHeight * 0.7 + filterOffsetY,
+          pirateWidth,
+          pirateHeight
         );
       }
     }
