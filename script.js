@@ -74,8 +74,8 @@ hardhat.src = "hardhat.png";
 hardhat.onerror = () => console.error('Failed to load hardhat.png');
 
 const pirate = new Image();
-hardhat.src = "pirate.png";
-hardhat.onerror = () => console.error('Failed to load pirate.png');
+pirate.src = "pirate.png";
+pirate.onerror = () => console.error('Failed to load pirate.png');
 
 const videoElement = document.getElementById('video');
 const canvasElement = document.getElementById('canvas');
@@ -168,7 +168,7 @@ faceMesh.onResults(results => {
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
         const headphoneWidth = browDistance * 3.5 * filterScaleX;  // Use X scale
-        const headphoneHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
+        const headphoneHeight = headphoneWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           headphones,
@@ -241,7 +241,7 @@ faceMesh.onResults(results => {
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
         const hardhatWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
-        const hardhatHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
+        const hardhatHeight = hardhatWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           hardhat,
@@ -264,7 +264,7 @@ faceMesh.onResults(results => {
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
         const pirateWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
-        const pirateHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
+        const pirateHeight = pirateWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           pirate,
