@@ -167,15 +167,15 @@ faceMesh.onResults(results => {
         const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
-        const headphoneWidth = browDistance * 3.5 * filterScaleX;  // Use X scale
-        const headphoneHeight = headphoneWidth * 0.55 * filterScaleY;  // Use Y scale
+        const headphonesWidth = browDistance * 3.5 * filterScaleX;  // Use X scale
+        const headphonesHeight = headphonesWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           headphones,
-          fx - headphoneWidth / 2 + filterOffsetX,
-          fy - headphoneHeight * 1.5 + filterOffsetY,
-          headphoneWidth,
-          headphoneHeight
+          fx - headphonesWidth / 2 + filterOffsetX,
+          fy - headphonesHeight * 1.5 + filterOffsetY,
+          headphonesWidth,
+          headphonesHeight
         );
       }
       
