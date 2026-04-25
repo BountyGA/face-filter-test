@@ -73,6 +73,10 @@ const hardhat = new Image();
 hardhat.src = "hardhat.png";
 hardhat.onerror = () => console.error('Failed to load hardhat.png');
 
+const pirate = new Image();
+hardhat.src = "pirate.png";
+hardhat.onerror = () => console.error('Failed to load pirate.png');
+
 const videoElement = document.getElementById('video');
 const canvasElement = document.getElementById('canvas');
 const canvasCtx = canvasElement.getContext('2d');
@@ -140,7 +144,7 @@ faceMesh.onResults(results => {
       
       // Apply filter based on selection
       if (currentFilter === "glasses" && glasses.complete) {
-        const glassesWidth = eyeDistance * 2.5 * filterScaleX;  // Use X scale
+        const glassesWidth = eyeDistance * 1.0 * filterScaleX;  // Use X scale
         const glassesHeight = glassesWidth * 0.35 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
@@ -163,7 +167,7 @@ faceMesh.onResults(results => {
         const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
         const browDistance = Math.abs(rightBrowX - leftBrowX);
         
-        const capWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
+        const capWidth = browDistance * 3.5 * filterScaleX;  // Use X scale
         const capHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
@@ -191,7 +195,7 @@ faceMesh.onResults(results => {
         
       else if (currentFilter === "gasmask" && gasmask.complete) {
         const gasmaskWidth = faceWidth * 1.2 * filterScaleX;  // Use X scale
-        const gasmaskHeight = gasmaskWidth * 0.8 * filterScaleY;  // Use Y scale
+        const gasmaskHeight = gasmaskWidth * 1.0 * filterScaleY;  // Use Y scale
         
         canvasCtx.drawImage(
           gasmask,
@@ -241,6 +245,29 @@ faceMesh.onResults(results => {
         
         canvasCtx.drawImage(
           hardhat,
+          fx - capWidth / 2 + filterOffsetX,
+          fy - capHeight * 0.7 + filterOffsetY,
+          capWidth,
+          capHeight
+        );
+      }
+
+      else if (currentFilter === "pirate" && pirate.complete) {
+        const forehead = landmarks[10];
+        const fx = (1 - forehead.x) * canvasElement.width;
+        const fy = forehead.y * canvasElement.height;
+        
+        const leftBrow = landmarks[70];
+        const rightBrow = landmarks[300];
+        const leftBrowX = (1 - leftBrow.x) * canvasElement.width;
+        const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
+        const browDistance = Math.abs(rightBrowX - leftBrowX);
+        
+        const capWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
+        const capHeight = capWidth * 0.55 * filterScaleY;  // Use Y scale
+        
+        canvasCtx.drawImage(
+          pirate,
           fx - capWidth / 2 + filterOffsetX,
           fy - capHeight * 0.7 + filterOffsetY,
           capWidth,
