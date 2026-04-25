@@ -1,10 +1,10 @@
 let currentFilter = "glasses";
-// Add these five lines:
-let filterOffsetX = 0;    // Manual left/right adjustment
-let filterOffsetY = 0;    // Manual up/down adjustment
-let filterScaleX = 1.0;   // Manual horizontal scale
-let filterScaleY = 1.0;   // Manual vertical scale
-let filterScale = 1.0;    // Keep for backward compatibility (optional)
+// Adjustment variables
+let filterOffsetX = 0;
+let filterOffsetY = 0;
+let filterScaleX = 1.0;
+let filterScaleY = 1.0;
+let filterScale = 1.0;
 
 function adjustFilter(direction) {
   const step = 5;
@@ -52,30 +52,37 @@ function updateAdjustmentDisplay() {
 const glasses = new Image();
 glasses.src = "glasses.png";
 glasses.onerror = () => console.error('Failed to load glasses.png');
+glasses.onload = () => console.log('Glasses loaded');
 
 const tradicap = new Image();
 tradicap.src = "tradicap.png";
 tradicap.onerror = () => console.error('Failed to load tradicap.png');
+tradicap.onload = () => console.log('Tradicap loaded');
 
 const headphones = new Image();
 headphones.src = "headphones.png";
 headphones.onerror = () => console.error('Failed to load headphones.png');
+headphones.onload = () => console.log('Headphones loaded');
 
 const clownface = new Image();
 clownface.src = "clownface.png";
 clownface.onerror = () => console.error('Failed to load clownface.png');
+clownface.onload = () => console.log('Clownface loaded');
 
 const gasmask = new Image();
 gasmask.src = "gasmask.png";
 gasmask.onerror = () => console.error('Failed to load gasmask.png');
+gasmask.onload = () => console.log('Gasmask loaded');
 
 const hardhat = new Image();
 hardhat.src = "hardhat.png";
 hardhat.onerror = () => console.error('Failed to load hardhat.png');
+hardhat.onload = () => console.log('Hardhat loaded');
 
 const pirate = new Image();
 pirate.src = "pirate.png";
 pirate.onerror = () => console.error('Failed to load pirate.png');
+pirate.onload = () => console.log('Pirate loaded');
 
 const videoElement = document.getElementById('video');
 const canvasElement = document.getElementById('canvas');
@@ -85,9 +92,211 @@ const canvasCtx = canvasElement.getContext('2d');
 canvasElement.width = 640;
 canvasElement.height = 480;
 
-// Make sure video element exists
 if (!videoElement) console.error('Video element not found!');
 if (!canvasElement) console.error('Canvas element not found!');
+
+// Helper function to get face measurements
+function getFaceMeasurements(landmarks, canvasWidth, canvasHeight) {
+  // Helper to convert normalized coordinates to pixels
+  const toPixels = (point) => {
+    if (!point) return { x: 0, y: 0 };
+    return {
+      x: (1 - point.x) * canvasWidth,
+      y: point.y * canvasHeight
+    };
+  };
+  
+  // Extract key landmarks
+  const leftEyeOuter = landmarks[33];
+  const leftEyeInner = landmarks[133];
+  const leftEyeCenter = landmarks[468];
+  
+  const rightEyeOuter = landmarks[263];
+  const rightEyeInner = landmarks[362];
+  const rightEyeCenter = landmarks[473];
+  
+  const noseTip = landmarks[1];
+  const noseBridge = landmarks[168];
+  const noseBottom = landmarks[2];
+  
+  const mouthLeft = landmarks[61];
+  const mouthRight = landmarks[291];
+  const mouthTop = landmarks[13];
+  const mouthBottom = landmarks[14];
+  
+  const foreheadTop = landmarks[10];
+  const foreheadLeft = landmarks[54];
+  const foreheadRight = landmarks[284];
+  
+  const faceTop = landmarks[10];
+  const faceBottom = landmarks[152];
+  const faceLeft = landmarks[234];
+  const faceRight = landmarks[454];
+  
+  const leftEyebrow = landmarks[70];
+  const rightEyebrow = landmarks[300];
+  
+  // Convert to pixels
+  const leftEyePx = toPixels(leftEyeCenter || leftEyeOuter);
+  const rightEyePx = toPixels(rightEyeCenter || rightEyeOuter);
+  const leftEyeOuterPx = toPixels(leftEyeOuter);
+  const rightEyeOuterPx = toPixels(rightEyeOuter);
+  
+  // Calculate distances
+  const eyeDistance = Math.sqrt(
+    Math.pow(rightEyePx.x - leftEyePx.x, 2) + 
+    Math.pow(rightEyePx.y - leftEyePx.y, 2)
+  );
+  
+  // Face dimensions
+  const faceLeftPx = toPixels(faceLeft);
+  const faceRightPx = toPixels(faceRight);
+  const faceTopPx = toPixels(faceTop);
+  const faceBottomPx = toPixels(faceBottom);
+  
+  const faceWidth = Math.abs(faceRightPx.x - faceLeftPx.x);
+  const faceHeight = Math.abs(faceBottomPx.y - faceTopPx.y);
+  
+  // Eye center (midpoint between eyes)
+  const eyeCenterX = (leftEyePx.x + rightEyePx.x) / 2;
+  const eyeCenterY = (leftEyePx.y + rightEyePx.y) / 2;
+  
+  // Forehead position
+  const foreheadPx = toPixels(foreheadTop);
+  
+  return {
+    eyes: {
+      left: leftEyePx,
+      right: rightEyePx,
+      leftOuter: leftEyeOuterPx,
+      rightOuter: rightEyeOuterPx,
+      center: { x: eyeCenterX, y: eyeCenterY },
+      distance: eyeDistance
+    },
+    nose: {
+      tip: toPixels(noseTip),
+      bridge: toPixels(noseBridge),
+      bottom: toPixels(noseBottom)
+    },
+    mouth: {
+      left: toPixels(mouthLeft),
+      right: toPixels(mouthRight),
+      top: toPixels(mouthTop),
+      bottom: toPixels(mouthBottom),
+      center: toPixels(mouthTop)
+    },
+    forehead: {
+      top: foreheadPx,
+      left: toPixels(foreheadLeft),
+      right: toPixels(foreheadRight)
+    },
+    eyebrows: {
+      left: toPixels(leftEyebrow),
+      right: toPixels(rightEyebrow)
+    },
+    face: {
+      top: faceTopPx,
+      bottom: faceBottomPx,
+      left: faceLeftPx,
+      right: faceRightPx,
+      width: faceWidth,
+      height: faceHeight,
+      center: { 
+        x: faceLeftPx.x + faceWidth / 2, 
+        y: faceTopPx.y + faceHeight / 2 
+      }
+    }
+  };
+}
+
+// Function to draw rotated image
+function drawRotatedImage(ctx, image, x, y, width, height, rotationDegrees) {
+  ctx.save();
+  ctx.translate(x + width / 2, y + height / 2);
+  ctx.rotate(rotationDegrees * Math.PI / 180);
+  ctx.drawImage(image, -width / 2, -height / 2, width, height);
+  ctx.restore();
+}
+
+// Calculate face rotation
+function calculateFaceAngle(measurements) {
+  const leftEye = measurements.eyes.left;
+  const rightEye = measurements.eyes.right;
+  const deltaY = rightEye.y - leftEye.y;
+  const deltaX = rightEye.x - leftEye.x;
+  return Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+}
+
+// Draw filter based on type
+function drawFilter(ctx, filterImg, measurements, filterType, offsets) {
+  if (!filterImg.complete) return;
+  
+  const { offsetX = 0, offsetY = 0, scaleX = 1, scaleY = 1 } = offsets;
+  const faceAngle = -calculateFaceAngle(measurements);
+  
+  let x, y, width, height;
+  
+  switch(filterType) {
+    case 'glasses':
+      width = measurements.eyes.distance * 2.5 * scaleX;
+      height = width * 0.4 * scaleY;
+      x = measurements.eyes.center.x - width / 2 + offsetX;
+      y = measurements.eyes.center.y - height / 2 - (height * 0.15) + offsetY;
+      drawRotatedImage(ctx, filterImg, x, y, width, height, faceAngle);
+      break;
+      
+    case 'headphones':
+      width = measurements.face.width * 1.2 * scaleX;
+      height = width * 0.55 * scaleY;
+      x = measurements.face.center.x - width / 2 + offsetX;
+      y = measurements.forehead.top.y - height * 0.6 + offsetY;
+      ctx.drawImage(filterImg, x, y, width, height);
+      break;
+      
+    case 'hardhat':
+      width = measurements.face.width * 1.1 * scaleX;
+      height = width * 0.55 * scaleY;
+      x = measurements.face.center.x - width / 2 + offsetX;
+      y = measurements.forehead.top.y - height * 0.5 + offsetY;
+      ctx.drawImage(filterImg, x, y, width, height);
+      break;
+      
+    case 'tradicap':
+      width = measurements.face.width * 1.15 * scaleX;
+      height = width * 0.55 * scaleY;
+      x = measurements.face.center.x - width / 2 + offsetX;
+      y = measurements.forehead.top.y - height * 0.45 + offsetY;
+      ctx.drawImage(filterImg, x, y, width, height);
+      break;
+      
+    case 'clownface':
+      width = measurements.face.width * 1.2 * scaleX;
+      height = measurements.face.height * 0.85 * scaleY;
+      x = measurements.face.center.x - width / 2 + offsetX;
+      y = measurements.face.top.y - height * 0.1 + offsetY;
+      ctx.drawImage(filterImg, x, y, width, height);
+      break;
+      
+    case 'gasmask':
+      width = measurements.face.width * 1.1 * scaleX;
+      height = width * 0.9 * scaleY;
+      x = measurements.face.center.x - width / 2 + offsetX;
+      y = measurements.nose.tip.y - height * 0.4 + offsetY;
+      ctx.drawImage(filterImg, x, y, width, height);
+      break;
+      
+    case 'pirate':
+      width = measurements.eyes.distance * 1.8 * scaleX;
+      height = width * 0.9 * scaleY;
+      x = measurements.eyes.left.x - width / 2 + offsetX;
+      y = measurements.eyes.left.y - height / 2 + offsetY;
+      drawRotatedImage(ctx, filterImg, x, y, width, height, faceAngle * 0.5);
+      break;
+      
+    default:
+      console.warn('Unknown filter type:', filterType);
+  }
+}
 
 // Initialize FaceMesh
 const faceMesh = new FaceMesh({
@@ -104,7 +313,7 @@ faceMesh.setOptions({
 });
 
 faceMesh.onResults(results => {
-  // Clear canvas and draw video frame
+  // Clear canvas
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   
@@ -116,163 +325,28 @@ faceMesh.onResults(results => {
 
   if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
     for (const landmarks of results.multiFaceLandmarks) {
+      // Get face measurements once
+      const measurements = getFaceMeasurements(landmarks, canvasElement.width, canvasElement.height);
       
-      // Get eye landmarks for width reference
-      const leftEye = landmarks[33];
-      const rightEye = landmarks[263];
+      // Map filter names to types
+      const filterMap = {
+        glasses: { img: glasses, type: 'glasses' },
+        headphones: { img: headphones, type: 'headphones' },
+        tradicap: { img: tradicap, type: 'tradicap' },
+        clownface: { img: clownface, type: 'clownface' },
+        gasmask: { img: gasmask, type: 'gasmask' },
+        hardhat: { img: hardhat, type: 'hardhat' },
+        pirate: { img: pirate, type: 'pirate' }
+      };
       
-      // Adjust coordinates for mirror effect
-      const x1 = (1 - leftEye.x) * canvasElement.width;
-      const y1 = leftEye.y * canvasElement.height;
-      const x2 = (1 - rightEye.x) * canvasElement.width;
-      const y2 = rightEye.y * canvasElement.height;
-      
-      const eyeDistance = Math.sqrt((x2 - x1)**2 + (y2 - y1)**2);
-      const centerX = (x1 + x2) / 2;
-      const centerY = (y1 + y2) / 2;
-      
-      // Get face dimensions for better scaling
-      const faceTop = landmarks[10];
-      const faceBottom = landmarks[152];
-      const faceLeft = landmarks[234];
-      const faceRight = landmarks[454];
-      
-      const faceWidth = Math.abs(
-        ((1 - faceRight.x) * canvasElement.width) - 
-        ((1 - faceLeft.x) * canvasElement.width)
-      );
-      
-      // Apply filter based on selection
-      if (currentFilter === "glasses" && glasses.complete) {
-        const glassesWidth = eyeDistance * 2.5 * filterScaleX;  // Use X scale
-        const glassesHeight = glassesWidth * 0.35 * filterScaleY;  // Use Y scale
-        
-        canvasCtx.drawImage(
-          glasses,
-          centerX - glassesWidth / 2 + filterOffsetX,
-          centerY - glassesHeight / 2 - (glassesHeight * 0.03) + filterOffsetY,
-          glassesWidth,
-          glassesHeight
-        );
-      }
-
-        else if (currentFilter === "headphones" && headphones.complete) {
-        const forehead = landmarks[10];
-        const fx = (1 - forehead.x) * canvasElement.width;
-        const fy = forehead.y * canvasElement.height;
-        
-        const leftBrow = landmarks[70];
-        const rightBrow = landmarks[300];
-        const leftBrowX = (1 - leftBrow.x) * canvasElement.width;
-        const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
-        const browDistance = Math.abs(rightBrowX - leftBrowX);
-        
-        const headphonesWidth = browDistance * 3.5 * filterScaleX;  // Use X scale
-        const headphonesHeight = headphonesWidth * 0.55 * filterScaleY;  // Use Y scale
-        
-        canvasCtx.drawImage(
-          headphones,
-          fx - headphonesWidth / 2 + filterOffsetX,
-          fy - headphonesHeight * 1.5 + filterOffsetY,
-          headphonesWidth,
-          headphonesHeight
-        );
-      }
-      
-      else if (currentFilter === "clownface" && clownface.complete) {
-        const clownWidth = faceWidth * 1.2 * filterScaleX;  // Use X scale
-        const clownHeight = clownWidth * 0.8 * filterScaleY;  // Use Y scale
-        
-        canvasCtx.drawImage(
-          clownface,
-          centerX - clownWidth / 2 + filterOffsetX,
-          centerY - clownHeight / 2 - (clownHeight * 0.2) + filterOffsetY,
-          clownWidth,
-          clownHeight
-        );
-      }
-
-        
-      else if (currentFilter === "gasmask" && gasmask.complete) {
-        const gasmaskWidth = faceWidth * 1.2 * filterScaleX;  // Use X scale
-        const gasmaskHeight = gasmaskWidth * 1.0 * filterScaleY;  // Use Y scale
-        
-        canvasCtx.drawImage(
-          gasmask,
-          centerX - gasmaskWidth / 2 + filterOffsetX,
-          centerY - gasmaskHeight / 2 - (gasmaskHeight * 0.2) + filterOffsetY,
-          gasmaskWidth,
-          gasmaskHeight
-        );
-      }
-
-        else if (currentFilter === "tradicap" && tradicap.complete) {
-        const forehead = landmarks[10];
-        const fx = (1 - forehead.x) * canvasElement.width;
-        const fy = forehead.y * canvasElement.height;
-        
-        const leftBrow = landmarks[70];
-        const rightBrow = landmarks[300];
-        const leftBrowX = (1 - leftBrow.x) * canvasElement.width;
-        const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
-        const browDistance = Math.abs(rightBrowX - leftBrowX);
-        
-        const tradicapWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
-        const tradicapHeight = tradicapWidth * 0.55 * filterScaleY;  // Use Y scale
-        
-        canvasCtx.drawImage(
-          tradicap,
-          fx - tradicapWidth / 2 + filterOffsetX,
-          fy - tradicapHeight * 0.7 + filterOffsetY,
-          tradicapWidth,
-          tradicapHeight
-       );
-      }
-          
-      else if (currentFilter === "hardhat" && hardhat.complete) {
-        const forehead = landmarks[10];
-        const fx = (1 - forehead.x) * canvasElement.width;
-        const fy = forehead.y * canvasElement.height;
-        
-        const leftBrow = landmarks[70];
-        const rightBrow = landmarks[300];
-        const leftBrowX = (1 - leftBrow.x) * canvasElement.width;
-        const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
-        const browDistance = Math.abs(rightBrowX - leftBrowX);
-        
-        const hardhatWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
-        const hardhatHeight = hardhatWidth * 0.55 * filterScaleY;  // Use Y scale
-        
-        canvasCtx.drawImage(
-          hardhat,
-          fx - hardhatWidth / 2 + filterOffsetX,
-          fy - hardhatHeight * 0.7 + filterOffsetY,
-          hardhatWidth,
-          hardhatHeight
-        );
-      }
-
-      else if (currentFilter === "pirate" && pirate.complete) {
-        const forehead = landmarks[10];
-        const fx = (1 - forehead.x) * canvasElement.width;
-        const fy = forehead.y * canvasElement.height;
-        
-        const leftBrow = landmarks[70];
-        const rightBrow = landmarks[300];
-        const leftBrowX = (1 - leftBrow.x) * canvasElement.width;
-        const rightBrowX = (1 - rightBrow.x) * canvasElement.width;
-        const browDistance = Math.abs(rightBrowX - leftBrowX);
-        
-        const pirateWidth = browDistance * 2.2 * filterScaleX;  // Use X scale
-        const pirateHeight = pirateWidth * 0.55 * filterScaleY;  // Use Y scale
-        
-        canvasCtx.drawImage(
-          pirate,
-          fx - pirateWidth / 2 + filterOffsetX,
-          fy - pirateHeight * 0.7 + filterOffsetY,
-          pirateWidth,
-          pirateHeight
-        );
+      const filter = filterMap[currentFilter];
+      if (filter && filter.img.complete) {
+        drawFilter(canvasCtx, filter.img, measurements, filter.type, {
+          offsetX: filterOffsetX,
+          offsetY: filterOffsetY,
+          scaleX: filterScaleX,
+          scaleY: filterScaleY
+        });
       }
     }
   }
@@ -306,7 +380,15 @@ function takePhoto() {
 function setFilter(filter) {
   currentFilter = filter;
   
-  document.querySelectorAll('.btn-filter-custom').forEach(btn => {
+  // Reset adjustments when changing filters
+  filterOffsetX = 0;
+  filterOffsetY = 0;
+  filterScaleX = 1.0;
+  filterScaleY = 1.0;
+  updateAdjustmentDisplay();
+  
+  // Update active button styling
+  document.querySelectorAll('.filter-chip, .btn-filter-custom').forEach(btn => {
     btn.classList.remove('active');
   });
   
@@ -314,6 +396,8 @@ function setFilter(filter) {
   if (activeBtn) {
     activeBtn.classList.add("active");
   }
+  
+  console.log('Filter changed to:', filter);
 }
 
 window.addEventListener('load', () => {
