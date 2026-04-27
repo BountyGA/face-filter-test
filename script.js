@@ -1,5 +1,4 @@
-/
- ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
 //  FILTER STATE
 // ─────────────────────────────────────────────
 let currentFilter = "glasses";
@@ -240,6 +239,18 @@ function onResults(results) {
 }
 
 // ─────────────────────────────────────────────
+//  STATUS DISPLAY HELPER
+// ─────────────────────────────────────────────
+function setStatus(msg, isError = false) {
+  console[isError ? 'error' : 'log']('[Camera]', msg);
+  const el = document.getElementById('cameraStatus');
+  if (el) {
+    el.textContent = msg;
+    el.style.color = isError ? '#ff4444' : '#44ff44';
+  }
+}
+
+// ─────────────────────────────────────────────
 //  INITIALISE FACE MESH
 // ─────────────────────────────────────────────
 const faceMesh = new FaceMesh({
@@ -247,8 +258,8 @@ const faceMesh = new FaceMesh({
 });
 
 faceMesh.setOptions({
-  maxNumFaces:          1,
-  refineLandmarks:      true,
+  maxNumFaces:            1,
+  refineLandmarks:        true,
   minDetectionConfidence: 0.5,
   minTrackingConfidence:  0.5
 });
@@ -256,24 +267,112 @@ faceMesh.setOptions({
 faceMesh.onResults(onResults);
 
 // ─────────────────────────────────────────────
-//  CAMERA
+//  CAMERA  –  direct getUserMedia (more reliable
+//  than MediaPipe's Camera helper class)
 // ─────────────────────────────────────────────
-const camera = new Camera(videoElement, {
-  onFrame: async () => {
-    if (videoElement.readyState >= 2) {
-      await faceMesh.send({ image: videoElement });
-    }
-  },
-  width:  640,
-  height: 480
-});
+let animFrameId = null;
 
-camera.start()
-  .then(()  => console.log('Camera started successfully'))
-  .catch(err => {
-    console.error('Camera error:', err);
-    alert('Cannot access camera. Please grant camera permission and reload.');
-  });
+async function startCamera() {
+  // 1. Check browser support
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setStatus('Camera API not supported in this browser.', true);
+    return;
+  }
+
+  // 2. Must be HTTPS or localhost
+  if (location.protocol !== 'https:' &&
+      location.hostname !== 'localhost' &&
+      location.hostname !== '127.0.0.1') {
+    setStatus('Camera requires HTTPS or localhost. Current origin: ' + location.origin, true);
+    return;
+  }
+
+  setStatus('Requesting camera permission…');
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 640, height: 480, facingMode: 'user' },
+      audio: false
+    });
+
+    videoElement.srcObject = stream;
+    videoElement.playsInline = true;
+
+    await new Promise((resolve, reject) => {
+      videoElement.onloadedmetadata = resolve;
+      videoElement.onerror = reject;
+    });
+
+    await videoElement.play();
+    setStatus('Camera active ✓');
+    console.log('Stream resolution:', videoElement.videoWidth, 'x', videoElement.videoHeight);
+
+    // 3. Kick off the render loop
+    processFrame();
+
+  } catch (err) {
+    // Specific guidance per error type
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      setStatus('Camera permission denied. Allow access in browser settings and reload.', true);
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      setStatus('No camera found. Please connect a camera and reload.', true);
+    } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+      setStatus('Camera is in use by another app. Close it and reload.', true);
+    } else if (err.name === 'OverconstrainedError') {
+      setStatus('Camera does not support 640×480. Retrying with default resolution…');
+      retryWithDefaultResolution();
+    } else {
+      setStatus('Camera error: ' + err.name + ' – ' + err.message, true);
+    }
+    console.error('getUserMedia error:', err);
+  }
+}
+
+// Fallback: retry without resolution constraints
+async function retryWithDefaultResolution() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    videoElement.srcObject = stream;
+    videoElement.playsInline = true;
+    await new Promise(resolve => { videoElement.onloadedmetadata = resolve; });
+    await videoElement.play();
+    setStatus('Camera active ✓ (default resolution)');
+    processFrame();
+  } catch (err) {
+    setStatus('Camera retry failed: ' + err.message, true);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  RENDER LOOP  –  feeds frames into FaceMesh
+// ─────────────────────────────────────────────
+async function processFrame() {
+  if (videoElement.readyState >= 2 && !videoElement.paused && !videoElement.ended) {
+    try {
+      await faceMesh.send({ image: videoElement });
+    } catch (err) {
+      console.warn('FaceMesh send error:', err);
+    }
+  }
+  animFrameId = requestAnimationFrame(processFrame);
+}
+
+// ─────────────────────────────────────────────
+//  STOP CAMERA  (utility – call if needed)
+// ─────────────────────────────────────────────
+function stopCamera() {
+  if (animFrameId) {
+    cancelAnimationFrame(animFrameId);
+    animFrameId = null;
+  }
+  if (videoElement.srcObject) {
+    videoElement.srcObject.getTracks().forEach(t => t.stop());
+    videoElement.srcObject = null;
+  }
+  setStatus('Camera stopped.');
+}
+
+startCamera();
 
 // ─────────────────────────────────────────────
 //  TAKE PHOTO  –  mirrored (selfie-style)
